@@ -7,6 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+aws-cdk-lib = "^2.104.0"
+constructs = "^10.3.0"
+boto3 = "^1.28.80"
+cdk-nag = "^2.27.185"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
