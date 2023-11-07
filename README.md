@@ -10,3 +10,9 @@ Inspired by https://github.com/aws-samples/aws-healthomics-eventbridge-integrati
 3. There is no Step 3
 
 The results will automatically be populated in the Notebook Metadata.
+
+## Setup
+
+```bash
+make synth
+```

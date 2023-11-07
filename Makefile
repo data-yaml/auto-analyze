@@ -15,6 +15,9 @@ clean:
 	rm -f .coverage*
 	rm -rf $(PROJECT)/.pytest_cache
 
+synth: install
+	poetry run python3 -m auto_analyze
+
 lock:
 	poetry lock
 
