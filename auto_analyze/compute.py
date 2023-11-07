@@ -10,18 +10,16 @@ from aws_cdk import (
     aws_sns as sns,
     aws_iam as iam,
     aws_s3_assets as s3_assets,
-    Aspects,
 )
 
 from constructs import Construct
 import os
 import json
-import cdk_nag
 
 
-###########################################################################################################
+#
 #                                       Workflow
-###########################################################################################################
+#
 
 
 class omics_workflow_Stack(Stack):
@@ -29,17 +27,18 @@ class omics_workflow_Stack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         aws_account = os.environ["CDK_DEFAULT_ACCOUNT"]
-        aws_region = os.environ["CDK_DEFAULT_REGION"]
+        aws_region = os.environ.get("CDK_DEFAULT_REGION", "us-east-1")
 
         # Prefix for all resource names
-        APP_NAME = f"healthomics"
+        APP_NAME = os.environ.get("APP_NAME", "healthomics-workflow")
 
         # currently set to run HealthOmics Ready2Run workflow
         # GATK-BP Germline fq2vcf for 30x genome
-        READY2RUN_WORKFLOW_ID = "9500764"
+        READY2RUN_WORKFLOW_ID = os.environ.get("READY2RUN_WORKFLOW_ID", "9500764")
 
-        ################################################################################################
-        #################################### Buckets ##############################################
+        #
+        # Buckets
+        #
 
         # Create Input S3 bucket
         bucket_input = s3.Bucket(
@@ -51,8 +50,9 @@ class omics_workflow_Stack(Stack):
             self, f"{APP_NAME}-cka-output-{aws_account}-{aws_region}", enforce_ssl=True
         )
 
-        ################################################################################################
-        #################################### Notification ##############################################
+        #
+        # Notification
+        #
 
         # SNS Topic for failure notifications
         sns_topic = sns.Topic(
@@ -80,10 +80,11 @@ class omics_workflow_Stack(Stack):
         # Grant EventBridge permission to publish to the SNS topic
         sns_topic.grant_publish(iam.ServicePrincipal("events.amazonaws.com"))
 
-        ################################################################################################
-        #################################### Identity and access management ############################
+        #
+        # Identity and access management
+        #
 
-        # Create an IAM service role for HealthOmics workflows ########################################
+        # Create an IAM service role for HealthOmics workflows
         omics_role = iam.Role(
             self,
             f"{APP_NAME}-omics-service-role",
@@ -199,8 +200,9 @@ class omics_workflow_Stack(Stack):
         )
         lambda_role.add_to_policy(lambda_omics_policy)
 
-        ################################################################################################
-        #################################### Create HealthOmics Workflow ###############################
+        #
+        # Create HealthOmics Workflow
+        #
 
         PRIVATE_WORKFLOW_NAME = "vep"
         workflow_description = "Workflow to run Variant Effect Predictor (VEP)"
@@ -228,8 +230,9 @@ class omics_workflow_Stack(Stack):
             tags={},
         )
 
-        ################################################################################################
-        #################################### Lambda Initial ############################################
+        #
+        # Lambda Initial
+        #
 
         # Create Lambda function to submit
         # initial HealthOmics workflow
@@ -265,8 +268,9 @@ class omics_workflow_Stack(Stack):
             )
         )
 
-        ################################################################################################
-        #################################### Lambda Post Initial #######################################
+        #
+        # Lambda Post Initial
+        #
 
         # Create Lambda function to submit second Omics pipeline
         second_workflow_lambda = lambda_.Function(
@@ -297,8 +301,9 @@ class omics_workflow_Stack(Stack):
             },
         )
 
-        ################################################################################################
-        #################################### Event Bridge Rule for post initial Lambda  ################
+        #
+        # Event Bridge Rule for post initial Lambda
+        #
 
         # Create an EventBridge rule that triggers lambda2
         rule_second_workflow_lambda = events.Rule(

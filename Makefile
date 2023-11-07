@@ -48,6 +48,7 @@ typecheck:
 lint:
 	poetry run black $(PROJECT) tests
 	poetry run flake8 $(PROJECT) tests
+	poetry run ruff $(PROJECT) tests
 
 coverage:
 	echo "Using WRITE_BUCKET=$(WRITE_BUCKET) | SKIP_LONG_TESTS=$(SKIP_LONG_TESTS)"

@@ -3,7 +3,7 @@ process ENSEMBLVEP {
     cpus 2
     memory '8 GB'
 
-    conda (params.enable_conda ? "bioconda::ensembl-vep=106.1" : null)
+    conda(params.enable_conda ? 'bioconda::ensembl-vep=106.1' : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/ensembl-vep:106.1--pl5321h4a94de4_0' :
         'quay.io/biocontainers/ensembl-vep:106.1--pl5321h4a94de4_0' }"
@@ -18,39 +18,40 @@ process ENSEMBLVEP {
     path  extra_files
 
     output:
-    tuple val(meta), path("*.ann.vcf")     , optional:true, emit: vcf
-    tuple val(meta), path("*.ann.tab")     , optional:true, emit: tab
-    tuple val(meta), path("*.ann.json")    , optional:true, emit: json
-    tuple val(meta), path("*.ann.vcf.gz")  , optional:true, emit: vcf_gz
-    tuple val(meta), path("*.ann.tab.gz")  , optional:true, emit: tab_gz
-    tuple val(meta), path("*.ann.json.gz") , optional:true, emit: json_gz
-    path "*.summary.html"                  , emit: report
-    path "versions.yml"                    , emit: versions
+    tuple val(meta), path('*.ann.vcf')     , optional:true, emit: vcf
+    tuple val(meta), path('*.ann.tab')     , optional:true, emit: tab
+    tuple val(meta), path('*.ann.json')    , optional:true, emit: json
+    tuple val(meta), path('*.ann.vcf.gz')  , optional:true, emit: vcf_gz
+    tuple val(meta), path('*.ann.tab.gz')  , optional:true, emit: tab_gz
+    tuple val(meta), path('*.ann.json.gz') , optional:true, emit: json_gz
+    path '*.summary.html'                  , emit: report
+    path 'versions.yml'                    , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def file_extension = args.contains("--vcf") ? 'vcf' : args.contains("--json")? 'json' : args.contains("--tab")? 'tab' : 'vcf'
-    def compress_out = args.contains("--compress_output") ? '.gz' : ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    def dir_cache = cache ? "\${PWD}/${cache}" : "/.vep"
-    def reference = fasta ? "--fasta $fasta" : ""
+    String args = task.ext.args ?: ''
+    String fileExtension = args.contains('--vcf') ? 'vcf' :
+        (args.contains('--json') ? 'json' : args.contains('--tab') ? 'tab' : 'vcf')
+    String compressOut = args.contains('--compress_output') ? '.gz' : ''
+    String tprefix = task.ext.prefix ?: "${meta.id}"
+    String dirCache = cache ? "\${PWD}/${cache}" : '/.vep'
+    String reference = fasta ? "--fasta $fasta" : ''
 
     """
     vep \\
         -i $vcf \\
-        -o ${prefix}.ann.${file_extension}${compress_out} \\
+        -o ${tprefix}.ann.${fileExtension}${compressOut} \\
         $args \\
         $reference \\
         --assembly $genome \\
         --species $species \\
         --cache \\
         --cache_version $cache_version \\
-        --dir_cache $dir_cache \\
+        --dir_cache $dirCache \\
         --fork $task.cpus \\
-        --stats_file ${prefix}.summary.html \\
+        --stats_file ${tprefix}.summary.html \\
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -59,15 +60,15 @@ process ENSEMBLVEP {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    String sprefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}.ann.vcf
-    touch ${prefix}.ann.tab
-    touch ${prefix}.ann.json
-    touch ${prefix}.ann.vcf.gz
-    touch ${prefix}.ann.tab.gz
-    touch ${prefix}.ann.json.gz
-    touch ${prefix}.summary.html
+    touch ${sprefix}.ann.vcf
+    touch ${sprefix}.ann.tab
+    touch ${sprefix}.ann.json
+    touch ${sprefix}.ann.vcf.gz
+    touch ${sprefix}.ann.tab.gz
+    touch ${sprefix}.ann.json.gz
+    touch ${sprefix}.summary.html
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -11,6 +11,7 @@ aws-cdk-lib = "^2.104.0"
 constructs = "^10.3.0"
 boto3 = "^1.28.80"
 cdk-nag = "^2.27.185"
+ruff = "^0.1.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
@@ -27,3 +28,8 @@ typing-extensions = "^4.7.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.flake8]
+max-line-length = 127
+[tool.ruff]
+line-length = 127
