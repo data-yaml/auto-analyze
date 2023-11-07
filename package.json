@@ -1,0 +1,32 @@
+{
+  "name": "auto-analyze",
+  "version": "1.0.0",
+  "description": "Node CDK supporting Python auto-analyze workflow",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/data-yaml/auto-analyze.git"
+  },
+  "keywords": [
+    "cdk",
+    "benchling",
+    "omics",
+    "nextflow",
+    "quilt"
+  ],
+  "author": "Ernest N. Prabhakar, Ph.D.",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/data-yaml/auto-analyze/issues"
+  },
+  "homepage": "https://github.com/data-yaml/auto-analyze#readme",
+  "dependencies": {
+    "cdk": "^2.104.0"
+  }
+}
