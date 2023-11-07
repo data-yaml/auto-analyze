@@ -1,5 +1,5 @@
 sinclude .env # create from example.env
-PROJECT=auto-analyze
+PROJECT=auto_analyze
 .PHONY: install test watch all clean
 
 TEST_README=--codeblocks

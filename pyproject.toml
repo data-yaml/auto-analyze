@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "auto-analyze"
+name = "auto_analyze"
 version = "0.1.0"
 description = ""
 authors = ["Dr. Ernie Prabhakar <ernest@quiltdata.io>"]
