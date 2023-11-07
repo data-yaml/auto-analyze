@@ -1,3 +1,4 @@
+
 nextflow.enable.dsl = 2
 
 include { ENSEMBLVEP  } from './modules/ensemblvep/main'
@@ -13,7 +14,9 @@ vep_fasta = (params.vep_include_fasta) ? fasta : []
 
 vep_extra_files = []
 
-
 workflow {
-    ENSEMBLVEP( [[ id: params.id], file(params.vcf, checkIfExists:true) ], vep_genome, vep_species, vep_cache_version, vep_cache, vep_fasta, vep_extra_files)
+    ENSEMBLVEP(
+        [[ id: params.id], file(params.vcf, checkIfExists:true) ],
+        vep_genome, vep_species, vep_cache_version, vep_cache, vep_fasta, vep_extra_files
+    )
 }

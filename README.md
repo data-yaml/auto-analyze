@@ -1,7 +1,13 @@
 # auto-analyze
-Benchling to Omics to NextFlow to Quilt
+
+## Benchling to Omics to NextFlow to Quilt
 
 Inspired by https://github.com/aws-samples/aws-healthomics-eventbridge-integration
+
+* Benchling
+* AWS Omics
+* NextFlow from Seqera Labs
+* Quilt Data
 
 ## Steps
 

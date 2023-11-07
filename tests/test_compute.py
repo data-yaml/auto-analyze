@@ -1,2 +1,2 @@
 def test_compute():
-  assert True
+    assert True
