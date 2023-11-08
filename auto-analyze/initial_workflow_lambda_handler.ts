@@ -9,7 +9,7 @@ const WORKFLOW_ID = process.env['WORKFLOW_ID'];
 const ECR_REGISTRY = process.env['ECR_REGISTRY'];
 const LOG_LEVEL = process.env['LOG_LEVEL'];
 
-const omics = new AWS.OMICS();
+const omics = new AWS.Omics();
 const s3 = new AWS.S3();
 
 async function localize_s3_file(bucket: string, _key: string, local_file: string) {
@@ -23,7 +23,7 @@ async function localize_s3_file(bucket: string, _key: string, local_file: string
             file.on('finish', resolve);
             file.on('error', reject);
         });
-    } catch (e) {
+    } catch (e: any) {
         if (e.code === 'NoSuchKey') {
             console.error("The object does not exist.");
         } else {
@@ -61,12 +61,12 @@ async function build_input_payload_for_r2r_gatk_fastq2vcf(sample_manifest_csv: s
         const _params: any = {};
         _params['sample_name'] = _sample;
         _params['fastq_pairs'] = [];
-        for (const [_rg, _details] of Object.entries(_obj)) {
+        for (const [_rg, _details] of Object.entries(_obj as { [s: string]: any })) {
             _params['fastq_pairs'].push({
                 'read_group': _rg,
-                'fastq_1': _details['fastq_1'],
-                'fastq_2': _details['fastq_2'],
-                'platform': _details['platform']
+                'fastq_1': _details['fastq_1'] as string,
+                'fastq_2': _details['fastq_2'] as string,
+                'platform': _details['platform'] as string
             });
         }
         samples_params.push(_params);
@@ -102,22 +102,24 @@ export async function handler(event: any, context: any) {
         console.info(`Starting workflow for sample: ${_samplename}`);
         const run_name = `Sample_${_samplename}_` + uuidv4();
         try {
-            const response = await omics.start_run({
-                workflowType: 'READY2RUN',
+            const options = {
+                workflowType: 'BATCH', // add a workflowType
                 workflowId: WORKFLOW_ID,
                 name: run_name,
-                roleArn: OMICS_ROLE,
+                roleArn: OMICS_ROLE || "arn:aws:iam::0000000000:role/omics-service-role",
                 parameters: _item,
+                logLevel: LOG_LEVEL,
                 outputUri: OUTPUT_S3_LOCATION,
-                logLevel: 'ALL',
                 tags: {
                     "SOURCE": "LAMBDA_INITIAL_WORKFLOW",
                     "RUN_NAME": run_name,
                     "SAMPLE_MANIFEST": `s3://${bucket_name}/${filename}`
-                }
-            }).promise();
-            console.info(`Workflow response: ${response}`);
-        } catch (e) {
+                },
+                requestId: uuidv4(), // add a unique requestId
+            }
+            const response = await omics.startRun(options).promise();
+            console.info(`Workflow response: ${JSON.stringify(response)}`);
+        } catch (e: any) {
             console.error("Error : " + e.toString());
             error_count += 1;
         }

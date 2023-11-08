@@ -1,11 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as sns from 'aws-cdk-lib/aws-sns';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
   export class OmicsWorkflowStack extends cdk.Stack {
@@ -13,18 +13,18 @@ import { Construct } from 'constructs';
     super(scope, id, props);
 
     const awsAccount = process.env.CDK_DEFAULT_ACCOUNT || '';
-    const awsRegion = process.env.CDK_DEFAULT_REGION || '';
+    const AWS_REGION = process.env.CDK_DEFAULT_REGION || '';
 
     const APP_NAME = 'healthomics';
     const READY2RUN_WORKFLOW_ID = '9500764';
 
     // Create Input S3 bucket
-    const bucketInput = new s3.Bucket(this, `${APP_NAME}-cka-input-${awsAccount}-${awsRegion}`, {
+    const bucketInput = new s3.Bucket(this, `${APP_NAME}-cka-input-${awsAccount}-${AWS_REGION}`, {
       enforceSSL: true
     });
 
     // Create Results S3 bucket
-    const bucketOutput = new s3.Bucket(this, `${APP_NAME}-cka-output-${awsAccount}-${awsRegion}`, {
+    const bucketOutput = new s3.Bucket(this, `${APP_NAME}-cka-output-${awsAccount}-${AWS_REGION}`, {
       enforceSSL: true
     });
 
@@ -79,7 +79,7 @@ import { Construct } from 'constructs';
     // ECR image access
     const omicsEcrPolicy = new iam.PolicyStatement({
       actions: ['ecr:BatchGetImage', 'ecr:GetDownloadUrlForLayer', 'ecr:BatchCheckLayerAvailability'],
-      resources: [`arn:aws:ecr:${awsRegion}:${awsAccount}:repository/*`]
+      resources: [`arn:aws:ecr:${AWS_REGION}:${awsAccount}:repository/*`]
     });
     omicsRole.addToPolicy(omicsEcrPolicy);
 
@@ -87,8 +87,8 @@ import { Construct } from 'constructs';
     const omicsLoggingPolicy = new iam.PolicyStatement({
       actions: ['logs:CreateLogGroup', 'logs:DescribeLogStreams', 'logs:CreateLogStream', 'logs:PutLogEvents'],
       resources: [
-        `arn:aws:logs:${awsRegion}:${awsAccount}:log-group:/aws/omics/WorkflowLog:log-stream:*`,
-        `arn:aws:logs:${awsRegion}:${awsAccount}:log-group:/aws/omics/WorkflowLog:*`
+        `arn:aws:logs:${AWS_REGION}:${awsAccount}:log-group:/aws/omics/WorkflowLog:log-stream:*`,
+        `arn:aws:logs:${AWS_REGION}:${awsAccount}:log-group:/aws/omics/WorkflowLog:*`
       ]
     });
     omicsRole.addToPolicy(omicsLoggingPolicy);
@@ -108,10 +108,10 @@ import { Construct } from 'constructs';
         'arn:aws:s3:::broad-references/*',
         'arn:aws:s3:::giab',
         'arn:aws:s3:::giab/*',
-        `arn:aws:s3:::aws-genomics-static-${awsRegion}`,
-        `arn:aws:s3:::aws-genomics-static-${awsRegion}/*`,
-        `arn:aws:s3:::omics-${awsRegion}`,
-        `arn:aws:s3:::omics-${awsRegion}/*`
+        `arn:aws:s3:::aws-genomics-static-${AWS_REGION}`,
+        `arn:aws:s3:::aws-genomics-static-${AWS_REGION}/*`,
+        `arn:aws:s3:::omics-${AWS_REGION}`,
+        `arn:aws:s3:::omics-${AWS_REGION}/*`
       ]
     });
     omicsRole.addToPolicy(omicsRoleAdditionalPolicy);
@@ -160,7 +160,7 @@ import { Construct } from 'constructs';
         'OMICS_ROLE': omicsRole.roleArn,
         'OUTPUT_S3_LOCATION': 's3://' + bucketOutput.bucketName + '/outputs',
         'WORKFLOW_ID': READY2RUN_WORKFLOW_ID,
-        'ECR_REGISTRY': awsAccount + '.dkr.ecr.' + awsRegion + '.amazonaws.com',
+        'ECR_REGISTRY': awsAccount + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
         'LOG_LEVEL': 'INFO'
       }
     });
@@ -182,9 +182,9 @@ import { Construct } from 'constructs';
         'OMICS_ROLE': omicsRole.roleArn,
         'OUTPUT_S3_LOCATION': 's3://' + bucketOutput.bucketName + '/outputs',
         'UPSTREAM_WORKFLOW_ID': READY2RUN_WORKFLOW_ID,
-        'ECR_REGISTRY': awsAccount + '.dkr.ecr.' + awsRegion + '.amazonaws.com',
+        'ECR_REGISTRY': awsAccount + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
         'SPECIES': 'homo_sapiens',
-        'DIR_CACHE': `s3://aws-genomics-static-${awsRegion}/omics-tutorials/data/databases/vep/`,
+        'DIR_CACHE': `s3://aws-genomics-static-${AWS_REGION}/omics-tutorials/data/databases/vep/`,
         'CACHE_VERSION': '110',
         'GENOME': 'GRCh38',
         'LOG_LEVEL': 'INFO'
