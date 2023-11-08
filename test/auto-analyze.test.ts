@@ -1,17 +1,27 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as AutoAnalyze from '../lib/auto-analyze-stack';
+import { Capture, Match, Template } from "aws-cdk-lib/assertions";
+import * as cdk from "aws-cdk-lib";
+import * as sns from "aws-cdk-lib/aws-sns";
+import { AutoAnalyzeStack } from "../lib/auto-analyze-stack";
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/auto-analyze-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new AutoAnalyze.AutoAnalyzeStack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+describe("AutoAnalyzeStack", () => {
+    test("synthesizes the way we expect", () => {
+        const app = new cdk.App();
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
-});
+        // Since the StateMachineStack consumes resources from a separate stack
+        // (cross-stack references), we create a stack for our SNS topics to live
+        // in here. These topics can then be passed to the StateMachineStack later,
+        // creating a cross-stack reference.
+        const topicsStack = new cdk.Stack(app, "TopicsStack");
+
+        // Create the topic the stack we're testing will reference.
+        const topics = [new sns.Topic(topicsStack, "Topic1", {})];
+
+        // Create the StateMachineStack.
+        const autoAnalyzeStack = new AutoAnalyzeStack(app, "AutoAnalyzeStack", {
+            topics: topics, // Cross-stack reference
+        });
+
+        // Prepare the stack for assertions.
+        const template = Template.fromStack(autoAnalyzeStack);
+    })
+})
