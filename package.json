@@ -1,9 +1,10 @@
 {
   "name": "auto-analyze",
-  "version": "1.0.0",
-  "description": "Node CDK supporting Python auto-analyze workflow",
+  "version": "0.1.0",
+  "description": "Auto-Analysis Workflow: Benchling to Omics to NextFlow to Quilt",
   "main": "index.js",
   "directories": {
+    "lib": "lib",
     "test": "tests"
   },
   "scripts": {
