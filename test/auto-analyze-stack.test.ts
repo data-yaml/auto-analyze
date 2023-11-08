@@ -32,5 +32,24 @@ describe("AutoAnalyzeStack", () => {
 
         // Creates the subscription...
         template.resourceCountIs("AWS::SNS::Subscription", 1);
+
+        // Fully assert on the state machine's IAM role with matchers.
+        template.hasResourceProperties(
+            "AWS::IAM::Role",
+            Match.objectLike({
+                AssumeRolePolicyDocument: {
+                    Version: "2012-10-17",
+                    Statement: [
+                        {
+                            Action: "sts:AssumeRole",
+                            Effect: "Allow",
+                            Principal: {
+                                Service: "lambda.amazonaws.com"
+                            }
+                        }
+                    ]
+                }
+            })
+        );
     })
 })

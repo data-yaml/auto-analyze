@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc-watch --onSuccess jest",
-    "test": "tsc && jest",
+    "test": "jest",
     "cdk": "cdk",
     "clean": "rm -f */*.{js,d.ts}"
   },
