@@ -15,7 +15,7 @@ export class AutoAnalyzeStack extends cdk.Stack {
 
     // In the future this state machine will do some work...
     const stateMachine = new sfn.StateMachine(this, "StateMachine", {
-      definition: new sfn.Pass(this, "StartState"),
+      definitionBody: sfn.DefinitionBody.fromChainable(new sfn.Pass(this, "StartState")),
     });
 
     // This Lambda function starts the state machine.
