@@ -23,5 +23,14 @@ describe("AutoAnalyzeStack", () => {
 
         // Prepare the stack for assertions.
         const template = Template.fromStack(autoAnalyzeStack);
+
+        // Assert it creates the function with the correct properties...
+        template.hasResourceProperties("AWS::Lambda::Function", {
+            Handler: "handler",
+            Runtime: "nodejs18.x",
+        });
+
+        // Creates the subscription...
+        template.resourceCountIs("AWS::SNS::Subscription", 1);
     })
 })
