@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "description": "Auto-Analysis Workflow: Benchling to Omics to NextFlow to Quilt",
   "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "directories": {
     "lib": "lib",
     "test": "tests"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -27,7 +30,14 @@
     "url": "https://github.com/data-yaml/auto-analyze/issues"
   },
   "homepage": "https://github.com/data-yaml/auto-analyze#readme",
+  "devDependencies": {
+    "@types/node": "^10.17.0",
+    "aws-cdk": "*",
+    "typescript": "~5.1.6"
+  },
   "dependencies": {
-    "cdk": "^2.104.0"
+    "cdk": "^2.104.0",
+    "aws-cdk-lib": "^2.0.0",
+    "constructs": "^10.0.0"
   }
 }
