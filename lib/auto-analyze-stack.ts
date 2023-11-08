@@ -1,16 +1,37 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as sns from "aws-cdk-lib/aws-sns";
+import * as sns_subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as sfn from "aws-cdk-lib/aws-stepfunctions";
+
+export interface AutoAnalyzeStackProps extends cdk.StackProps {
+  readonly topics: sns.Topic[];
+}
 
 export class AutoAnalyzeStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: AutoAnalyzeStackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    // In the future this state machine will do some work...
+    const stateMachine = new sfn.StateMachine(this, "StateMachine", {
+      definition: new sfn.Pass(this, "StartState"),
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'AutoAnalyzeQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    // This Lambda function starts the state machine.
+    const func = new lambda.Function(this, "LambdaFunction", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: "handler",
+      code: lambda.Code.fromAsset("./start-state-machine"),
+      environment: {
+        STATE_MACHINE_ARN: stateMachine.stateMachineArn,
+      },
+    });
+    stateMachine.grantStartExecution(func);
+
+    const subscription = new sns_subscriptions.LambdaSubscription(func);
+    for (const topic of props.topics) {
+      topic.addSubscription(subscription);
+    }
   }
 }
