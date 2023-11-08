@@ -1,13 +1,14 @@
-# auto-analyze
+# Welcome to your CDK TypeScript project
 
-Benchling to Omics to NextFlow to Quilt
+This is a blank project for CDK development with TypeScript.
 
-Inspired by [aws-healthomics-eventbridge-integration](https://github.com/aws-samples/aws-healthomics-eventbridge-integration)
+The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
-## Steps
+## Useful commands
 
-1. Create Benchling Notebook with "Auto-Analyze" Schema
-2. Upload data files to the specified S3 Prefix
-3. There is no Step 3
-
-The results will automatically be populated in the Notebook Metadata.
+* `npm run build`   compile typescript to js
+* `npm run watch`   watch for changes and compile
+* `npm run test`    perform the jest unit tests
+* `cdk deploy`      deploy this stack to your default AWS account/region
+* `cdk diff`        compare deployed stack with current state
+* `cdk synth`       emits the synthesized CloudFormation template
