@@ -6,8 +6,8 @@ import logging
 import uuid
 from collections import defaultdict
 
-OUTPUT_S3_LOCATION = os.environ['OUTPUT_S3_LOCATION']    
-OMICS_ROLE = os.environ['OMICS_ROLE']        
+OUTPUT_S3_LOCATION = os.environ['OUTPUT_S3_LOCATION']
+OMICS_ROLE = os.environ['OMICS_ROLE']
 WORKFLOW_ID = os.environ['WORKFLOW_ID']
 ECR_REGISTRY = os.environ['ECR_REGISTRY']
 LOG_LEVEL = os.environ['LOG_LEVEL']
@@ -15,9 +15,10 @@ LOG_LEVEL = os.environ['LOG_LEVEL']
 omics = boto3.client('omics')
 s3 = boto3.client('s3')
 
-# enable logging 
+# enable logging
 logging.basicConfig(level=LOG_LEVEL)
 logging.info("Initial workflow lambda Function started.")
+
 
 def localize_s3_file(bucket, _key, local_file):
     s3_client = boto3.client('s3')
@@ -35,6 +36,7 @@ def localize_s3_file(bucket, _key, local_file):
             raise
     return
 
+
 def build_input_payload_for_r2r_gatk_fastq2vcf(sample_manifest_csv):
     """
     Function specific to the HealthOmics Ready2Run workflow
@@ -50,24 +52,24 @@ def build_input_payload_for_r2r_gatk_fastq2vcf(sample_manifest_csv):
     SampleX,RG2,s3://path/to/SampleX/RG2/001_R1.fastq.gz,s3://path/to/SampleX/RG2/001_R2.fastq.gz,solid
     SampleX,RG2,s3://path/to/SampleX/RG2/002_R1.fastq.gz,s3://path/to/SampleX/RG2/002_R2.fastq.gz,solid
     """
-    
+
     with open(sample_manifest_csv) as smc:
         contents = smc.readlines()
-    
+
     header = contents[0].strip()
     if header != "sample_name,read_group,fastq_1,fastq_2,platform":
         raise Exception("Invalid sample manifest CSV header")
-    
+
     # prepare workflow input payload per sample
     samples = defaultdict(dict)
     for _line in contents[1:]:
-        sample_name,read_group,fastq_1,fastq_2,platform = _line.strip().split(',')
+        sample_name, read_group, fastq_1, fastq_2, platform = _line.strip().split(',')
         if read_group not in samples[sample_name]:
             samples[sample_name][read_group] = {}
         samples[sample_name][read_group]['fastq_1'] = fastq_1
         samples[sample_name][read_group]['fastq_2'] = fastq_2
         samples[sample_name][read_group]['platform'] = platform
-    
+
     samples_params = []
     for _sample, _obj in samples.items():
         logging.info(f"Creating input payload for sample: {_sample}")
@@ -87,6 +89,8 @@ def build_input_payload_for_r2r_gatk_fastq2vcf(sample_manifest_csv):
 
 # Lambda function triggered by S3 event
 # and launch of initial workflow
+
+
 def handler(event, context):
     logging.debug("Received event: " + json.dumps(event, indent=2))
 
@@ -102,7 +106,7 @@ def handler(event, context):
         raise Exception("No file detected for analysis!")
     else:
         raise Exception("Multiple s3 files in event not yet suppported")
-    #TODO: implement processing of multiple files in future version 
+    # TODO: implement processing of multiple files in future version
 
     # dowload manifest CSV
     local_file = "/tmp/sample_manifest.csv"
@@ -128,16 +132,15 @@ def handler(event, context):
                         "SOURCE": "LAMBDA_INITIAL_WORKFLOW",
                         "RUN_NAME": run_name,
                         "SAMPLE_MANIFEST": f"s3://{bucket_name}/{filename}"
-                    }     
+                    }
             )
             logging.info(f"Workflow response: {response}")
         except botocore.exceptions.ClientError as ce:
-            logging.error( "boto3 client error : " + ce.__str__())
+            logging.error("boto3 client error : " + ce.__str__())
             error_count += 1
         except Exception as e:
-            logging.error( "unknown error : " + e.__str__())
+            logging.error("unknown error : " + e.__str__())
             error_count += 1
-        
 
     if error_count > 0:
         raise Exception("Error launching some workflows, check logs")
