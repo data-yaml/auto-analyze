@@ -13,6 +13,7 @@ from aws_cdk import (
 )
 
 from constructs import Construct
+from .constants import AWS_ACCOUNT, AWS_REGION
 import os
 import json
 
@@ -25,9 +26,6 @@ import json
 class omics_workflow_Stack(Stack):
     def __init__(self, scope: Construct, construct_id: str, config, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
-
-        aws_account = os.environ["CDK_DEFAULT_ACCOUNT"]
-        aws_region = os.environ.get("CDK_DEFAULT_REGION", "us-east-1")
 
         # Prefix for all resource names
         APP_NAME = os.environ.get("APP_NAME", "healthomics-workflow")
@@ -42,12 +40,12 @@ class omics_workflow_Stack(Stack):
 
         # Create Input S3 bucket
         bucket_input = s3.Bucket(
-            self, f"{APP_NAME}-cka-input-{aws_account}-{aws_region}", enforce_ssl=True
+            self, f"{APP_NAME}-cka-input-{AWS_ACCOUNT}-{AWS_REGION}", enforce_ssl=True
         )
 
         # Create Results S3 bucket
         bucket_output = s3.Bucket(
-            self, f"{APP_NAME}-cka-output-{aws_account}-{aws_region}", enforce_ssl=True
+            self, f"{APP_NAME}-cka-output-{AWS_ACCOUNT}-{AWS_REGION}", enforce_ssl=True
         )
 
         #
@@ -124,7 +122,7 @@ class omics_workflow_Stack(Stack):
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchCheckLayerAvailability",
             ],
-            resources=[f"arn:aws:ecr:{aws_region}:{aws_account}:repository/*"],
+            resources=[f"arn:aws:ecr:{AWS_REGION}:{AWS_ACCOUNT}:repository/*"],
         )
         omics_role.add_to_policy(omics_ecr_policy)
 
@@ -137,8 +135,8 @@ class omics_workflow_Stack(Stack):
                 "logs:PutLogEvents",
             ],
             resources=[
-                f"arn:aws:logs:{aws_region}:{aws_account}:log-group:/aws/omics/WorkflowLog:log-stream:*",
-                f"arn:aws:logs:{aws_region}:{aws_account}:log-group:/aws/omics/WorkflowLog:*",
+                f"arn:aws:logs:{AWS_REGION}:{AWS_ACCOUNT}:log-group:/aws/omics/WorkflowLog:log-stream:*",
+                f"arn:aws:logs:{AWS_REGION}:{AWS_ACCOUNT}:log-group:/aws/omics/WorkflowLog:*",
             ],
         )
         omics_role.add_to_policy(omics_logging_policy)
@@ -157,9 +155,9 @@ class omics_workflow_Stack(Stack):
                 "arn:aws:s3:::broad-references/*",
                 "arn:aws:s3:::giab",
                 "arn:aws:s3:::giab/*",
-                f"arn:aws:s3:::aws-genomics-static-{aws_region}",
-                f"arn:aws:s3:::aws-genomics-static-{aws_region}/*",
-                f"arn:aws:s3:::omics-{aws_region}" f"arn:aws:s3:::omics-{aws_region}/*",
+                f"arn:aws:s3:::aws-genomics-static-{AWS_REGION}",
+                f"arn:aws:s3:::aws-genomics-static-{AWS_REGION}/*",
+                f"arn:aws:s3:::omics-{AWS_REGION}" f"arn:aws:s3:::omics-{AWS_REGION}/*",
             ],
         )
         omics_role.add_to_policy(omics_role_additional_policy)
@@ -249,9 +247,9 @@ class omics_workflow_Stack(Stack):
                 "OMICS_ROLE": omics_role.role_arn,
                 "OUTPUT_S3_LOCATION": "s3://" + bucket_output.bucket_name + "/outputs",
                 "WORKFLOW_ID": READY2RUN_WORKFLOW_ID,
-                "ECR_REGISTRY": aws_account
+                "ECR_REGISTRY": AWS_ACCOUNT
                 + ".dkr.ecr."
-                + aws_region
+                + AWS_REGION
                 + ".amazonaws.com",
                 "LOG_LEVEL": "INFO",
             },
@@ -289,12 +287,12 @@ class omics_workflow_Stack(Stack):
                 "OUTPUT_S3_LOCATION": "s3://" + bucket_output.bucket_name + "/outputs",
                 "WORKFLOW_ID": private_workflow_cfn.attr_id,
                 "UPSTREAM_WORKFLOW_ID": READY2RUN_WORKFLOW_ID,
-                "ECR_REGISTRY": aws_account
+                "ECR_REGISTRY": AWS_ACCOUNT
                 + ".dkr.ecr."
-                + aws_region
+                + AWS_REGION
                 + ".amazonaws.com",
                 "SPECIES": "homo_sapiens",
-                "DIR_CACHE": f"s3://aws-genomics-static-{aws_region}/omics-tutorials/data/databases/vep/",
+                "DIR_CACHE": f"s3://aws-genomics-static-{AWS_REGION}/omics-tutorials/data/databases/vep/",
                 "CACHE_VERSION": "110",
                 "GENOME": "GRCh38",
                 "LOG_LEVEL": "INFO",

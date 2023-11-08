@@ -3,8 +3,11 @@ from aws_cdk import Environment
 
 
 # Dev Environment
+AWS_ACCOUNT = os.environ["CDK_DEFAULT_ACCOUNT"]
+AWS_REGION = os.environ.get("CDK_DEFAULT_REGION", "us-east-1")
+
 DEV_ENV = Environment(
-    account=os.environ["CDK_DEFAULT_ACCOUNT"], region=os.environ["CDK_DEFAULT_REGION"]
+    account=AWS_ACCOUNT, region=AWS_REGION
 )
 DEV_CONFIG = {
     "AWS_REGION": "us-east-1",
