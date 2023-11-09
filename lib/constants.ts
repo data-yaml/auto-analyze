@@ -1,18 +1,19 @@
 // FILEPATH: /Users/ernest/Documents/GitHub/auto-analyze/auto-analyze/constants.ts
 
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 export const AWS_ACCOUNT_ID = process.env.CDK_DEFAULT_ACCOUNT ?? ''
 export const AWS_REGION = process.env.CDK_DEFAULT_REGION ?? ''
 
-export const OUTPUT_S3_LOCATION: string = process.env.OUTPUT_S3_LOCATION
-export const OMICS_ROLE: string = process.env.OMICS_ROLE
-export const WORKFLOW_ID: string = process.env.WORKFLOW_ID
-export const UPSTREAM_WORKFLOW_ID: string = process.env.UPSTREAM_WORKFLOW_ID
-export const ECR_REGISTRY: string = process.env.ECR_REGISTRY
-export const VEP_SPECIES: string = process.env.SPECIES
-export const VEP_DIR_CACHE: string = process.env.DIR_CACHE
-export const VEP_CACHE_VERSION: string = process.env.CACHE_VERSION
-export const VEP_GENOME: string = process.env.GENOME
-export const LOG_LEVEL: string = process.env.LOG_LEVEL
+export const OUTPUT_S3_LOCATION: string = process.env.OUTPUT_S3_LOCATION!
+export const OMICS_ROLE: string = process.env.OMICS_ROLE!
+export const WORKFLOW_ID: string = process.env.WORKFLOW_ID!
+export const UPSTREAM_WORKFLOW_ID: string = process.env.UPSTREAM_WORKFLOW_ID!
+export const ECR_REGISTRY: string = process.env.ECR_REGISTRY!
+export const VEP_SPECIES: string = process.env.SPECIES!
+export const VEP_DIR_CACHE: string = process.env.DIR_CACHE!
+export const VEP_CACHE_VERSION: string = process.env.CACHE_VERSION!
+export const VEP_GENOME: string = process.env.GENOME!
+export const LOG_LEVEL: string = process.env.LOG_LEVEL!
 
 export const APP_NAME = 'healthomics'
 export const READY2RUN_WORKFLOW_ID = '9500764'
