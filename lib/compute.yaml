@@ -5,22 +5,16 @@ _yaml:
   doc: auto-analyze
   doc_version: 0.1.0
 env:
-  AWS_ACCOUNT: CDK_DEFAULT_ACCOUNT
+  AWS_ACCOUNT: 
+    - CDK_DEFAULT_ACCOUNT
   AWS_REGION:
     - CDK_DEFAULT_REGION
     - us-east-1
-  APP_NAME:
-    - AA_APP_NAME
-    - AutoAnalyze
-  READY2RUN_ID:
-    - AA_READY2RUN_ID
-    - 9500764
-  SERVICE_EVENTS:
-    - SERVICE_EVENTS
-    - events.amazonaws.com
-  SERVICE_OMICS:
-    - SERVICE_OMICS
-    - omics.amazonaws.com
+  APP_NAME: AutoAnalyze
+  READY2RUN_ID: 9500764
+  SERVICE_EVENTS:events.amazonaws.com
+  SERVICE_OMICS: omics.amazonaws.com
+  SERVICE_LAMBDA: lambda.amazonaws.com
 name:
   TOPIC:
     $join._:
@@ -243,12 +237,10 @@ resources:
           value:
             - lambda.amazonaws.com
       managedPolicies:
-        - $new:
-            api: iam
-            call: ManagedPolicy
-            value:
-              $ref: "#/env/AWS_REGION"
-              - service-role/AWSLambdaBasicExecutionRole
+        $call:
+          api: iam
+          call: ManagedPolicy.fromAwsManagedPolicyName
+          value: service-role/AWSLambdaBasicExecutionRole
   lambdaIamPassrolePolicy:
     api: iam
     call: PolicyStatement
