@@ -12,7 +12,7 @@ env:
     - us-east-1
   APP_NAME: AutoAnalyze
   READY2RUN_ID: 9500764
-  SERVICE_EVENTS:events.amazonaws.com
+  SERVICE_EVENTS: events.amazonaws.com
   SERVICE_OMICS: omics.amazonaws.com
   SERVICE_LAMBDA: lambda.amazonaws.com
 name:
@@ -308,10 +308,8 @@ resources:
       code:
         $new:
           api: lambda
-          call: Code
-          value:
-            $ref: "#/env/AWS_REGION"
-            - lambda_function/initial_workflow_lambda
+          call: Code.fromAsset
+          value: lambda_function/initial_workflow_lambda
       role:
         $ref: "#/resources/lambdaRole"
       timeout: 60
@@ -356,10 +354,8 @@ resources:
       code:
         $new:
           api: lambda
-          call: Code
-          value:
-            $ref: "#/env/AWS_REGION"
-            - lambda_function/post_initial_workflow_lambda
+          call: Code.fromAsset
+          value: lambda_function/post_initial_workflow_lambda
       role:
         $ref: "#/resources/lambdaRole"
       timeout: 60
