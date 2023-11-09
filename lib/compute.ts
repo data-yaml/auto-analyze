@@ -6,14 +6,14 @@ import * as targets from "aws-cdk-lib/aws-events-targets";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaEventSources from "aws-cdk-lib/aws-lambda-event-sources";
 import * as iam from "aws-cdk-lib/aws-iam";
-import { Construct } from "constructs";
+import { type Construct } from "constructs";
 
 export class OmicsWorkflowStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const awsAccount = process.env.CDK_DEFAULT_ACCOUNT || "";
-    const AWS_REGION = process.env.CDK_DEFAULT_REGION || "";
+    const awsAccount = process.env.CDK_DEFAULT_ACCOUNT ?? "";
+    const AWS_REGION = process.env.CDK_DEFAULT_REGION ?? "";
 
     const APP_NAME = "healthomics";
     const READY2RUN_WORKFLOW_ID = "9500764";

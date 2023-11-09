@@ -22,7 +22,7 @@ const s3 = new AWS.S3();
 // from Omics successful run of initial workflow
 // and submit the next workflow
 // Example event
-/*{
+/* {
     "version": "0",
     "id": "4c338660-3a89-69ad-40d5-aakjhfjkaf",
     "detail-type": "Run Status Change",

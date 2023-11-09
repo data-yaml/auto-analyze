@@ -1,6 +1,6 @@
 import * as cdk from "aws-cdk-lib";
-import { Construct } from "constructs";
-import * as sns from "aws-cdk-lib/aws-sns";
+import { type Construct } from "constructs";
+import type * as sns from "aws-cdk-lib/aws-sns";
 import * as sns_subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as sfn from "aws-cdk-lib/aws-stepfunctions";

@@ -18,7 +18,7 @@ describe("AutoAnalyzeStack", () => {
 
     // Create the StateMachineStack.
     const autoAnalyzeStack = new AutoAnalyzeStack(app, "AutoAnalyzeStack", {
-      topics: topics, // Cross-stack reference
+      topics, // Cross-stack reference
     });
 
     // Prepare the stack for assertions.

@@ -3,11 +3,11 @@ import * as fs from "fs";
 import * as util from "util";
 import { v4 as uuidv4 } from "uuid";
 
-const OUTPUT_S3_LOCATION = process.env["OUTPUT_S3_LOCATION"];
-const OMICS_ROLE = process.env["OMICS_ROLE"];
-const WORKFLOW_ID = process.env["WORKFLOW_ID"];
-const ECR_REGISTRY = process.env["ECR_REGISTRY"];
-const LOG_LEVEL = process.env["LOG_LEVEL"];
+const OUTPUT_S3_LOCATION = process.env.OUTPUT_S3_LOCATION;
+const OMICS_ROLE = process.env.OMICS_ROLE;
+const WORKFLOW_ID = process.env.WORKFLOW_ID;
+const ECR_REGISTRY = process.env.ECR_REGISTRY;
+const LOG_LEVEL = process.env.LOG_LEVEL;
 
 const omics = new AWS.Omics();
 const s3 = new AWS.S3();
@@ -63,25 +63,23 @@ async function build_input_payload_for_r2r_gatk_fastq2vcf(
     if (!samples[sample_name][read_group]) {
       samples[sample_name][read_group] = {};
     }
-    samples[sample_name][read_group]["fastq_1"] = fastq_1;
-    samples[sample_name][read_group]["fastq_2"] = fastq_2;
-    samples[sample_name][read_group]["platform"] = platform;
+    samples[sample_name][read_group].fastq_1 = fastq_1;
+    samples[sample_name][read_group].fastq_2 = fastq_2;
+    samples[sample_name][read_group].platform = platform;
   }
 
   const samples_params = [];
   for (const [_sample, _obj] of Object.entries(samples)) {
     console.info(`Creating input payload for sample: ${_sample}`);
     const _params: any = {};
-    _params["sample_name"] = _sample;
-    _params["fastq_pairs"] = [];
-    for (const [_rg, _details] of Object.entries(
-      _obj as { [s: string]: any },
-    )) {
-      _params["fastq_pairs"].push({
+    _params.sample_name = _sample;
+    _params.fastq_pairs = [];
+    for (const [_rg, _details] of Object.entries(_obj as Record<string, any>)) {
+      _params.fastq_pairs.push({
         read_group: _rg,
-        fastq_1: _details["fastq_1"] as string,
-        fastq_2: _details["fastq_2"] as string,
-        platform: _details["platform"] as string,
+        fastq_1: _details.fastq_1 as string,
+        fastq_2: _details.fastq_2 as string,
+        platform: _details.platform as string,
       });
     }
     samples_params.push(_params);
@@ -93,12 +91,12 @@ async function build_input_payload_for_r2r_gatk_fastq2vcf(
 export async function handler(event: any, context: any) {
   console.debug("Received event: " + JSON.stringify(event, null, 2));
 
-  const num_upload_records = event["Records"].length;
+  const num_upload_records = event.Records.length;
   let filename, bucket_arn, bucket_name;
   if (num_upload_records === 1) {
-    filename = event["Records"][0]["s3"]["object"]["key"];
-    bucket_arn = event["Records"][0]["s3"]["bucket"]["arn"];
-    bucket_name = event["Records"][0]["s3"]["bucket"]["name"];
+    filename = event.Records[0].s3.object.key;
+    bucket_arn = event.Records[0].s3.bucket.arn;
+    bucket_name = event.Records[0].s3.bucket.name;
     console.info(`Processing ${filename} in ${bucket_arn}`);
   } else if (num_upload_records === 0) {
     throw new Error("No file detected for analysis!");
@@ -114,7 +112,7 @@ export async function handler(event: any, context: any) {
     await build_input_payload_for_r2r_gatk_fastq2vcf(local_file);
   let error_count = 0;
   for (const _item of multi_sample_params) {
-    const _samplename = _item["sample_name"];
+    const _samplename = _item.sample_name;
     console.info(`Starting workflow for sample: ${_samplename}`);
     const run_name = `Sample_${_samplename}_` + uuidv4();
     try {
