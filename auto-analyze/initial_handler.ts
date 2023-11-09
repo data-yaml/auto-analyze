@@ -1,7 +1,7 @@
-import * as AWS from "aws-sdk";
-import * as fs from "fs";
-import * as util from "util";
-import { v4 as uuidv4 } from "uuid";
+import * as AWS from 'aws-sdk';
+import * as fs from 'fs';
+import * as util from 'util';
+import { v4 as uuidv4 } from 'uuid';
 
 const OUTPUT_S3_LOCATION = process.env.OUTPUT_S3_LOCATION;
 const OMICS_ROLE = process.env.OMICS_ROLE;
@@ -26,12 +26,12 @@ async function localize_s3_file(
       .createReadStream();
     stream.pipe(file);
     await new Promise((resolve, reject) => {
-      file.on("finish", resolve);
-      file.on("error", reject);
+      file.on('finish', resolve);
+      file.on('error', reject);
     });
   } catch (e: any) {
-    if (e.code === "NoSuchKey") {
-      console.error("The object does not exist.");
+    if (e.code === 'NoSuchKey') {
+      console.error('The object does not exist.');
     } else {
       throw e;
     }
@@ -43,20 +43,20 @@ async function build_input_payload_for_r2r_gatk_fastq2vcf(
 ) {
   const contents = await util.promisify(fs.readFile)(
     sample_manifest_csv,
-    "utf8",
+    'utf8',
   );
-  const lines = contents.split("\n");
+  const lines = contents.split('\n');
 
   const header = lines[0].trim();
-  if (header !== "sample_name,read_group,fastq_1,fastq_2,platform") {
-    throw new Error("Invalid sample manifest CSV header");
+  if (header !== 'sample_name,read_group,fastq_1,fastq_2,platform') {
+    throw new Error('Invalid sample manifest CSV header');
   }
 
   const samples: any = {};
   for (const _line of lines.slice(1)) {
     const [sample_name, read_group, fastq_1, fastq_2, platform] = _line
       .trim()
-      .split(",");
+      .split(',');
     if (!samples[sample_name]) {
       samples[sample_name] = {};
     }
@@ -89,7 +89,7 @@ async function build_input_payload_for_r2r_gatk_fastq2vcf(
 }
 
 export async function handler(event: any, context: any) {
-  console.debug("Received event: " + JSON.stringify(event, null, 2));
+  console.debug('Received event: ' + JSON.stringify(event, null, 2));
 
   const num_upload_records = event.Records.length;
   let filename, bucket_arn, bucket_name;
@@ -99,12 +99,12 @@ export async function handler(event: any, context: any) {
     bucket_name = event.Records[0].s3.bucket.name;
     console.info(`Processing ${filename} in ${bucket_arn}`);
   } else if (num_upload_records === 0) {
-    throw new Error("No file detected for analysis!");
+    throw new Error('No file detected for analysis!');
   } else {
-    throw new Error("Multiple s3 files in event not yet supported");
+    throw new Error('Multiple s3 files in event not yet supported');
   }
 
-  const local_file = "/tmp/sample_manifest.csv";
+  const local_file = '/tmp/sample_manifest.csv';
   await localize_s3_file(bucket_name, filename, local_file);
   console.info(`Downloaded manifest CSV to: ${local_file}`);
 
@@ -117,16 +117,16 @@ export async function handler(event: any, context: any) {
     const run_name = `Sample_${_samplename}_` + uuidv4();
     try {
       const options = {
-        workflowType: "BATCH", // add a workflowType
+        workflowType: 'BATCH', // add a workflowType
         workflowId: WORKFLOW_ID,
         name: run_name,
         roleArn:
-          OMICS_ROLE || "arn:aws:iam::0000000000:role/omics-service-role",
+          OMICS_ROLE || 'arn:aws:iam::0000000000:role/omics-service-role',
         parameters: _item,
         logLevel: LOG_LEVEL,
         outputUri: OUTPUT_S3_LOCATION,
         tags: {
-          SOURCE: "LAMBDA_INITIAL_WORKFLOW",
+          SOURCE: 'LAMBDA_INITIAL_WORKFLOW',
           RUN_NAME: run_name,
           SAMPLE_MANIFEST: `s3://${bucket_name}/${filename}`,
         },
@@ -135,12 +135,12 @@ export async function handler(event: any, context: any) {
       const response = await omics.startRun(options).promise();
       console.info(`Workflow response: ${JSON.stringify(response)}`);
     } catch (e: any) {
-      console.error("Error : " + e.toString());
+      console.error('Error : ' + e.toString());
       error_count += 1;
     }
   }
 
   if (error_count > 0) {
-    throw new Error("Error launching some workflows, check logs");
+    throw new Error('Error launching some workflows, check logs');
   }
 }

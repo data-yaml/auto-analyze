@@ -1,8 +1,8 @@
-import * as AWS from "aws-sdk";
+import * as AWS from 'aws-sdk';
 // import * as os from 'os';
 // import { ClientError } from 'aws-sdk/lib/error';
-import * as uuid from "uuid";
-import { S3 } from "aws-sdk";
+import * as uuid from 'uuid';
+import { S3 } from 'aws-sdk';
 
 const OUTPUT_S3_LOCATION: string = process.env.OUTPUT_S3_LOCATION!;
 const OMICS_ROLE: string = process.env.OMICS_ROLE!;
@@ -43,9 +43,9 @@ const s3 = new AWS.S3();
 }
 */
 function splitS3Path(s3Path: string): [string, string] {
-  const pathParts = s3Path.replace("s3://", "").split("/");
+  const pathParts = s3Path.replace('s3://', '').split('/');
   const bucket = pathParts.shift()!;
-  const key = pathParts.join("/");
+  const key = pathParts.join('/');
   return [bucket, key];
 }
 
@@ -56,13 +56,13 @@ export async function handler(event: any, context: any): Promise<any> {
   console.debug(event);
 
   // check if event is valid
-  const event_detail_type = event["detail-type"];
-  if (event_detail_type !== "Run Status Change") {
-    throw new Error("Unknown event triggered this Lambda, unable to process");
+  const event_detail_type = event['detail-type'];
+  if (event_detail_type !== 'Run Status Change') {
+    throw new Error('Unknown event triggered this Lambda, unable to process');
   }
 
   // Get the omics run ID
-  const omics_run_id = event.detail.arn.split("/").pop()!;
+  const omics_run_id = event.detail.arn.split('/').pop()!;
   console.info(`Omics Run ID: ${omics_run_id}`);
 
   // Get the omics run details
@@ -79,7 +79,7 @@ export async function handler(event: any, context: any): Promise<any> {
     return {
       statusCode: 200,
       runStatus:
-        "Lambda function finished successfully. No HealthOmics workflow started.",
+        'Lambda function finished successfully. No HealthOmics workflow started.',
       runIds: [],
     };
   }
@@ -106,7 +106,7 @@ export async function handler(event: any, context: any): Promise<any> {
     if (list_objects_response.Contents) {
       for (const object of list_objects_response.Contents) {
         const key = object.Key!;
-        if (key.endsWith(".vcf.gz")) {
+        if (key.endsWith('.vcf.gz')) {
           found = true;
           vcf_file = `s3://${s3bucket}/${key}`;
           break;
@@ -116,10 +116,10 @@ export async function handler(event: any, context: any): Promise<any> {
     continuation_token = list_objects_response.NextContinuationToken;
   } while (!found && continuation_token);
   if (!found || !vcf_file) {
-    throw new Error("no .vcf.gz file found in output directory, exiting");
+    throw new Error('no .vcf.gz file found in output directory, exiting');
   }
 
-  const sample_name = vcf_file.split("/").pop()!.split(".")[0];
+  const sample_name = vcf_file.split('/').pop()!.split('.')[0];
   const run_name = `VEP Sample ${sample_name} ${uuid.v4()}`;
 
   const workflow_params = {
@@ -135,15 +135,15 @@ export async function handler(event: any, context: any): Promise<any> {
   try {
     const run = await omics
       .startRun({
-        workflowType: "PRIVATE",
+        workflowType: 'PRIVATE',
         workflowId: WORKFLOW_ID,
         name: run_name,
         roleArn: OMICS_ROLE,
         parameters: workflow_params,
-        logLevel: "ALL",
+        logLevel: 'ALL',
         outputUri: OUTPUT_S3_LOCATION,
         tags: {
-          SOURCE: "LAMBDA_POST_INITIAL_WORKFLOW",
+          SOURCE: 'LAMBDA_POST_INITIAL_WORKFLOW',
           PARENT_WORKFLOW_ID: UPSTREAM_WORKFLOW_ID,
           PARENT_WORKFLOW_RUN_ID: omics_run_id,
           SAMPLE_NAME: sample_name,
@@ -157,11 +157,11 @@ export async function handler(event: any, context: any): Promise<any> {
       `Successfully started HealthOmics Run ID: ${run_id} for sample: ${sample_name}`,
     );
   } catch (e: any) {
-    throw new Error("unknown error : " + e.toString());
+    throw new Error('unknown error : ' + e.toString());
   }
 
   return {
     statusCode: 200,
-    statusMessage: "Workflows launched successfully",
+    statusMessage: 'Workflows launched successfully',
   };
 }
