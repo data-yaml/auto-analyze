@@ -70,17 +70,17 @@ export async function handler(event: any, context: any): Promise<any> {
   const omics_workflowId = omics_workflow_run.workflowId
   if (omics_workflowId === UPSTREAM_WORKFLOW_ID) {
     console.info(
-      `Omics Workflow ID: ${omics_workflowId} matched, continue processing`,
+      `Omics Workflow ID: ${omics_workflowId} matched, continue processing`
     )
   } else {
     console.info(
-      `ERROR! Expected input from workflow (${UPSTREAM_WORKFLOW_ID}), but received input from workflow (${omics_workflowId}) `,
+      `ERROR! Expected input from workflow (${UPSTREAM_WORKFLOW_ID}), but received input from workflow (${omics_workflowId}) `
     )
     return {
       statusCode: 200,
       runStatus:
         'Lambda function finished successfully. No HealthOmics workflow started.',
-      runIds: [],
+      runIds: []
     }
   }
 
@@ -100,7 +100,7 @@ export async function handler(event: any, context: any): Promise<any> {
       .listObjectsV2({
         Bucket: s3bucket,
         Prefix: s3key,
-        ContinuationToken: continuation_token,
+        ContinuationToken: continuation_token
       })
       .promise()
     if (list_objects_response.Contents) {
@@ -129,7 +129,7 @@ export async function handler(event: any, context: any): Promise<any> {
     vep_genome: VEP_GENOME,
     ecr_registry: ECR_REGISTRY,
     vep_cache: VEP_DIR_CACHE,
-    vep_cache_version: VEP_CACHE_VERSION,
+    vep_cache_version: VEP_CACHE_VERSION
   }
 
   try {
@@ -146,15 +146,15 @@ export async function handler(event: any, context: any): Promise<any> {
           SOURCE: 'LAMBDA_POST_INITIAL_WORKFLOW',
           PARENT_WORKFLOW_ID: UPSTREAM_WORKFLOW_ID,
           PARENT_WORKFLOW_RUN_ID: omics_run_id,
-          SAMPLE_NAME: sample_name,
+          SAMPLE_NAME: sample_name
         },
-        requestId: uuid.v4(), // add requestId property
+        requestId: uuid.v4() // add requestId property
       })
       .promise()
     // get relevant run details
     const run_id = run.id
     console.info(
-      `Successfully started HealthOmics Run ID: ${run_id} for sample: ${sample_name}`,
+      `Successfully started HealthOmics Run ID: ${run_id} for sample: ${sample_name}`
     )
   } catch (e: any) {
     throw new Error('unknown error : ' + e.toString())
@@ -162,6 +162,6 @@ export async function handler(event: any, context: any): Promise<any> {
 
   return {
     statusCode: 200,
-    statusMessage: 'Workflows launched successfully',
+    statusMessage: 'Workflows launched successfully'
   }
 }

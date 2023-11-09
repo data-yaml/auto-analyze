@@ -18,7 +18,7 @@ describe('AutoAnalyzeStack', () => {
 
     // Create the StateMachineStack.
     const autoAnalyzeStack = new AutoAnalyzeStack(app, 'AutoAnalyzeStack', {
-      topics, // Cross-stack reference
+      topics // Cross-stack reference
     })
 
     // Prepare the stack for assertions.
@@ -27,7 +27,7 @@ describe('AutoAnalyzeStack', () => {
     // Assert it creates the function with the correct properties...
     template.hasResourceProperties('AWS::Lambda::Function', {
       Handler: 'handler',
-      Runtime: 'nodejs18.x',
+      Runtime: 'nodejs18.x'
     })
 
     // Creates the subscription...
@@ -44,12 +44,12 @@ describe('AutoAnalyzeStack', () => {
               Action: 'sts:AssumeRole',
               Effect: 'Allow',
               Principal: {
-                Service: 'lambda.amazonaws.com',
-              },
-            },
-          ],
-        },
-      }),
+                Service: 'lambda.amazonaws.com'
+              }
+            }
+          ]
+        }
+      })
     )
   })
 })

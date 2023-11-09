@@ -10,7 +10,7 @@ export interface AutoAnalyzeStackProps extends cdk.StackProps {
 }
 
 export class AutoAnalyzeStack extends cdk.Stack {
-  constructor (scope: Construct, id: string, props: AutoAnalyzeStackProps) {
+  constructor(scope: Construct, id: string, props: AutoAnalyzeStackProps) {
     super(scope, id, props)
 
     // In the future this state machine will do some work...

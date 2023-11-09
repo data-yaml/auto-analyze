@@ -15,7 +15,7 @@ const s3 = new AWS.S3()
 async function localize_s3_file(
   bucket: string,
   _key: string,
-  local_file: string,
+  local_file: string
 ) {
   const s3Client = new AWS.S3()
 
@@ -39,11 +39,11 @@ async function localize_s3_file(
 }
 
 async function build_input_payload_for_r2r_gatk_fastq2vcf(
-  sample_manifest_csv: string,
+  sample_manifest_csv: string
 ) {
   const contents = await util.promisify(fs.readFile)(
     sample_manifest_csv,
-    'utf8',
+    'utf8'
   )
   const lines = contents.split('\n')
 
@@ -79,7 +79,7 @@ async function build_input_payload_for_r2r_gatk_fastq2vcf(
         read_group: _rg,
         fastq_1: _details.fastq_1 as string,
         fastq_2: _details.fastq_2 as string,
-        platform: _details.platform as string,
+        platform: _details.platform as string
       })
     }
     samples_params.push(_params)
@@ -128,9 +128,9 @@ export async function handler(event: any, context: any) {
         tags: {
           SOURCE: 'LAMBDA_INITIAL_WORKFLOW',
           RUN_NAME: run_name,
-          SAMPLE_MANIFEST: `s3://${bucket_name}/${filename}`,
+          SAMPLE_MANIFEST: `s3://${bucket_name}/${filename}`
         },
-        requestId: uuidv4(), // add a unique requestId
+        requestId: uuidv4() // add a unique requestId
       }
       const response = await omics.startRun(options).promise()
       console.info(`Workflow response: ${JSON.stringify(response)}`)

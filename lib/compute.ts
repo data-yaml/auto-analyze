@@ -9,7 +9,7 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import { type Construct } from 'constructs'
 
 export class OmicsWorkflowStack extends cdk.Stack {
-  constructor (scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
     const awsAccount = process.env.CDK_DEFAULT_ACCOUNT ?? ''
