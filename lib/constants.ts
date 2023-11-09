@@ -1,5 +1,3 @@
-// FILEPATH: /Users/ernest/Documents/GitHub/auto-analyze/auto-analyze/constants.ts
-
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 export const AWS_ACCOUNT_ID = process.env.CDK_DEFAULT_ACCOUNT ?? ''
 export const AWS_REGION = process.env.CDK_DEFAULT_REGION ?? ''

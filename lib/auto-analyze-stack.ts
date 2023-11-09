@@ -24,7 +24,7 @@ export class AutoAnalyzeStack extends cdk.Stack {
     const func = new lambda.Function(this, 'LambdaFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'handler',
-      code: lambda.Code.fromAsset('./auto-analyze'),
+      code: lambda.Code.fromAsset('./lambda_function'),
       environment: {
         STATE_MACHINE_ARN: stateMachine.stateMachineArn
       }

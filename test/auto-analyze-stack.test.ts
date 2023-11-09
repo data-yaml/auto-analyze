@@ -1,4 +1,4 @@
-import { Capture, Match, Template } from 'aws-cdk-lib/assertions'
+import { Match, Template } from 'aws-cdk-lib/assertions'
 import * as cdk from 'aws-cdk-lib'
 import * as sns from 'aws-cdk-lib/aws-sns'
 import { AutoAnalyzeStack } from '../lib/auto-analyze-stack'
