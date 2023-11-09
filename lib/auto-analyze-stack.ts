@@ -1,5 +1,5 @@
-import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import * as cdk from "aws-cdk-lib";
+import { Construct } from "constructs";
 import * as sns from "aws-cdk-lib/aws-sns";
 import * as sns_subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
 import * as lambda from "aws-cdk-lib/aws-lambda";
@@ -15,7 +15,9 @@ export class AutoAnalyzeStack extends cdk.Stack {
 
     // In the future this state machine will do some work...
     const stateMachine = new sfn.StateMachine(this, "StateMachine", {
-      definitionBody: sfn.DefinitionBody.fromChainable(new sfn.Pass(this, "StartState")),
+      definitionBody: sfn.DefinitionBody.fromChainable(
+        new sfn.Pass(this, "StartState"),
+      ),
     });
 
     // This Lambda function starts the state machine.
