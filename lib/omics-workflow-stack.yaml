@@ -18,7 +18,7 @@ env:
 name:
   TOPIC:
     $join._:
-      - $ref: "#/env/APP_NAME"
+      - $ref: '#/env/APP_NAME'
       - workflow
       - status
       - topic
@@ -28,11 +28,11 @@ resources:
     call: Bucket
     name:
       $join.-:
-        - $ref: "#/env/APP_NAME"
+        - $ref: '#/env/APP_NAME'
         - cka
         - input
-        - $ref: "#/env/AWS_ACCOUNT"
-        - $ref: "#/env/AWS_REGION"
+        - $ref: '#/env/AWS_ACCOUNT'
+        - $ref: '#/env/AWS_REGION'
     options:
       enforceSSL: true
   bucketOutput:
@@ -40,36 +40,36 @@ resources:
     call: Bucket
     name:
       $join.-:
-        - $ref: "#/env/APP_NAME"
+        - $ref: '#/env/APP_NAME'
         - cka
         - output
-        - $ref: "#/env/AWS_ACCOUNT"
-        - $ref: "#/env/AWS_REGION"
+        - $ref: '#/env/AWS_ACCOUNT'
+        - $ref: '#/env/AWS_REGION'
     options:
       _enforceSSL: true
   snsTopic:
     api: sns
     call: Topic
     name:
-      $ref: "#/name/TOPIC"
+      $ref: '#/name/TOPIC'
     options:
       displayName:
-        $ref: "#/name/TOPIC"
+        $ref: '#/name/TOPIC'
       topicName:
-        $ref: "#/name/TOPIC"
+        $ref: '#/name/TOPIC'
     post:
       grantPublish:
         $new:
           api: iam
           call: ServicePrincipal
           value:
-            $ref: "#/env/SERVICE_EVENTS"
+            $ref: '#/env/SERVICE_EVENTS'
   ruleWorkflowStatusTopic:
     api: events
     call: Rule
     name:
       $join._:
-        - $ref: "#/env/APP_NAME"
+        - $ref: '#/env/APP_NAME'
         - rule
         - workflow
         - status
@@ -89,13 +89,13 @@ resources:
           api: targets
           call: SnsTopic
           value:
-            $ref: "#/resources/snsTopic"
+            $ref: '#/resources/snsTopic'
   omicsRole:
     api: iam
     call: Role
     name:
       $join.-:
-        - $ref: "#/env/APP_NAME"
+        - $ref: '#/env/APP_NAME'
         - omics
         - service
         - role
@@ -105,128 +105,128 @@ resources:
           api: iam
           call: ServicePrincipal
           value:
-            $ref: "#/env/SERVICE_OMICS"
+            $ref: '#/env/SERVICE_OMICS'
   omicsS3ReadPolicy:
     api: iam
     call: PolicyStatement
     options:
       actions:
-        - "s3:ListBucket"
-        - "s3:GetObject"
+        - 's3:ListBucket'
+        - 's3:GetObject'
       resources:
-        - $ref: "#/resources/bucketInput/arn"
-        - $ref: "#/resources/bucketOutput/arn"
+        - $ref: '#/resources/bucketInput/arn'
+        - $ref: '#/resources/bucketOutput/arn'
         - $join:
-            - $ref: "#/resources/bucketInput/arn"
+            - $ref: '#/resources/bucketInput/arn'
             - /*
         - $join:
-            - $ref: "#/resources/bucketOutput/arn"
+            - $ref: '#/resources/bucketOutput/arn'
             - /*
     reverse: # omicsRole.addToPolicy(omicsS3ReadPolicy);
       addToPolicy:
-        $ref: "#/resources/omicsRole"
+        $ref: '#/resources/omicsRole'
   omicsS3WritePolicy:
     api: iam
     call: PolicyStatement
     options:
       actions:
-        - "s3:ListBucket"
-        - "s3:PutObject"
+        - 's3:ListBucket'
+        - 's3:PutObject'
       resources:
-        - $ref: "#/resources/bucketOutput/arn"
+        - $ref: '#/resources/bucketOutput/arn'
         - $join:
-            - $ref: "#/resources/bucketOutput/arn"
+            - $ref: '#/resources/bucketOutput/arn'
             - /*
     reverse: # omicsRole.addToPolicy(omicsS3WritePolicy);
       addToPolicy:
-        $ref: "#/resources/omicsRole"
+        $ref: '#/resources/omicsRole'
   omicsEcrPolicy:
     api: iam
     call: PolicyStatement
     options:
       actions:
-        - "ecr:BatchGetImage"
-        - "ecr:GetDownloadUrlForLayer"
-        - "ecr:BatchCheckLayerAvailability"
+        - 'ecr:BatchGetImage'
+        - 'ecr:GetDownloadUrlForLayer'
+        - 'ecr:BatchCheckLayerAvailability'
       resources:
-        "$join.:":
-          - "arn:aws:ecr"
-          - $ref: "#/env/AWS_REGION"
-          - $ref: "#/env/AWS_ACCOUNT"
+        '$join.:':
+          - 'arn:aws:ecr'
+          - $ref: '#/env/AWS_REGION'
+          - $ref: '#/env/AWS_ACCOUNT'
           - repository/*
     reverse: # omicsRole.addToPolicy(omicsS3WritePolicy);
       addToPolicy:
-        $ref: "#/resources/omicsRole"
+        $ref: '#/resources/omicsRole'
   omicsLoggingPolicy:
     api: iam
     call: PolicyStatement
     options:
       actions:
-        - "logs:CreateLogGroup"
-        - "logs:DescribeLogStreams"
-        - "logs:CreateLogStream"
-        - "logs:PutLogEvents"
+        - 'logs:CreateLogGroup'
+        - 'logs:DescribeLogStreams'
+        - 'logs:CreateLogStream'
+        - 'logs:PutLogEvents'
       resources:
-        - "$join.:":
-            - "arn:aws:logs"
-            - $ref: "#/env/AWS_REGION"
-            - $ref: "#/env/AWS_ACCOUNT"
-            - "log-group:/aws/omics/WorkflowLog:log-stream:*"
+        - '$join.:':
+            - 'arn:aws:logs'
+            - $ref: '#/env/AWS_REGION'
+            - $ref: '#/env/AWS_ACCOUNT'
+            - 'log-group:/aws/omics/WorkflowLog:log-stream:*'
         - $join:
-            - "arn:aws:logs"
-            - $ref: "#/env/AWS_REGION"
-            - $ref: "#/env/AWS_ACCOUNT"
-            - "log-group:/aws/omics/WorkflowLog:*"
+            - 'arn:aws:logs'
+            - $ref: '#/env/AWS_REGION'
+            - $ref: '#/env/AWS_ACCOUNT'
+            - 'log-group:/aws/omics/WorkflowLog:*'
     reverse:
       addToPolicy:
-        $ref: "#/resources/omicsRole"
+        $ref: '#/resources/omicsRole'
   omicsKmsPolicy:
     api: iam
     call: PolicyStatement
     options:
       actions:
-        - "kms:Decrypt"
-        - "kms:GenerateDataKey"
+        - 'kms:Decrypt'
+        - 'kms:GenerateDataKey'
       resources:
-        - "*"
+        - '*'
     reverse:
       addToPolicy:
-        $ref: "#/resources/omicsRole"
+        $ref: '#/resources/omicsRole'
   omicsRoleAdditionalPolicy:
     api: iam
     call: PolicyStatement
     options:
       actions:
-        - "s3:Get*"
-        - "s3:List*"
+        - 's3:Get*'
+        - 's3:List*'
       resources:
-        - "arn:aws:s3:::broad-references"
-        - "arn:aws:s3:::broad-references/*"
-        - "arn:aws:s3:::giab"
-        - "arn:aws:s3:::giab/*"
+        - 'arn:aws:s3:::broad-references'
+        - 'arn:aws:s3:::broad-references/*'
+        - 'arn:aws:s3:::giab'
+        - 'arn:aws:s3:::giab/*'
         - $join:
-            - "arn:aws:s3:::aws-genomics-static-"
-            - $ref: "#/env/AWS_REGION"
+            - 'arn:aws:s3:::aws-genomics-static-'
+            - $ref: '#/env/AWS_REGION'
         - $join:
-            - "arn:aws:s3:::aws-genomics-static-"
-            - $ref: "#/env/AWS_REGION"
-            - "/*"
+            - 'arn:aws:s3:::aws-genomics-static-'
+            - $ref: '#/env/AWS_REGION'
+            - '/*'
         - $join:
-            - "arn:aws:s3:::omics-"
-            - $ref: "#/env/AWS_REGION"
+            - 'arn:aws:s3:::omics-'
+            - $ref: '#/env/AWS_REGION'
         - $join:
-            - "arn:aws:s3:::omics-"
-            - $ref: "#/env/AWS_REGION"
-            - "/*"
+            - 'arn:aws:s3:::omics-'
+            - $ref: '#/env/AWS_REGION'
+            - '/*'
     reverse:
       addToPolicy:
-        $ref: "#/resources/omicsRole"
+        $ref: '#/resources/omicsRole'
   lambdaRole:
     api: iam
     call: Role
     name:
       $join.-:
-        - $ref: "#/env/APP_NAME"
+        - $ref: '#/env/APP_NAME'
         - lambda
         - role
     options:
@@ -248,62 +248,62 @@ resources:
       actions:
         - iam:PassRole
       resources:
-        - $ref: "#/resources/omicsRole/arn"
+        - $ref: '#/resources/omicsRole/arn'
     reverse:
       addToPolicy:
-        $ref: "#/resources/lambdaRole"
+        $ref: '#/resources/lambdaRole'
   lambdaS3Policy:
     api: iam
     call: PolicyStatement
     options:
       actions:
-        - "s3:ListBucket"
-        - "s3:GetObject"
-        - "s3:PutObject"
+        - 's3:ListBucket'
+        - 's3:GetObject'
+        - 's3:PutObject'
       resources:
-        - $ref: "#/resources/bucketInput/arn"
-        - $ref: "#/resources/bucketOutput/arn"
+        - $ref: '#/resources/bucketInput/arn'
+        - $ref: '#/resources/bucketOutput/arn'
         - $join:
-            - $ref: "#/resources/bucketInput/arn"
+            - $ref: '#/resources/bucketInput/arn'
             - /*
         - $join:
-            - $ref: "#/resources/bucketOutput/arn"
+            - $ref: '#/resources/bucketOutput/arn'
             - /*
     reverse:
       addToPolicy:
-        $ref: "#/resources/lambdaRole"
+        $ref: '#/resources/lambdaRole'
   lambdaOmicsPolicy:
     api: iam
     call: PolicyStatement
     options:
       actions:
-        - "omics:StartRun"
-        - "omics:TagResource"
-        - "omics:GetRun"
+        - 'omics:StartRun'
+        - 'omics:TagResource'
+        - 'omics:GetRun'
       resources:
-        - "*"
+        - '*'
     reverse:
       addToPolicy:
-        $ref: "#/resources/lambdaRole"
+        $ref: '#/resources/lambdaRole'
   lambdaEventSources:
     api: lambda
     call: EventSourceMapping
     options:
       batchSize: 1
       eventSourceArn:
-        $ref: "#/resources/bucketInput/arn"
+        $ref: '#/resources/bucketInput/arn'
       startingPosition: LATEST
   initialWorkflowLambda:
     api: lambda
     call: Function
     name:
       $join.-:
-        - $ref: "#/env/APP_NAME"
+        - $ref: '#/env/APP_NAME'
         - initial
         - workflow
         - lambda
     options:
-      runtime: lambda.Runtime.PYTHON_3_8
+      runtime: lambda.Runtime.NODEJS_18_X
       handler: initial_workflow_lambda_handler.handler
       code:
         $new:
@@ -311,24 +311,24 @@ resources:
           call: Code.fromAsset
           value: lambda_function/initial_workflow_lambda
       role:
-        $ref: "#/resources/lambdaRole"
+        $ref: '#/resources/lambdaRole'
       timeout: 60
       retryAttempts: 1
       environment:
         OMICS_ROLE:
-          $ref: "#/resources/omicsRole/arn"
+          $ref: '#/resources/omicsRole/arn'
         OUTPUT_S3_LOCATION:
           $join.:
             - s3://
-            - $ref: "#/resources/bucketOutput/name"
+            - $ref: '#/resources/bucketOutput/name'
             - /outputs
         WORKFLOW_ID:
-          $ref: "#/env/READY2RUN_ID"
+          $ref: '#/env/READY2RUN_ID'
         ECR_REGISTRY:
           $join.:
-            - $ref: "#/env/AWS_ACCOUNT"
+            - $ref: '#/env/AWS_ACCOUNT'
             - .dkr.ecr.
-            - $ref: "#/env/AWS_REGION"
+            - $ref: '#/env/AWS_REGION'
             - .amazonaws.com
         LOG_LEVEL: INFO
     post:
@@ -337,19 +337,19 @@ resources:
           api: lambda
           call: EventSourceMapping
           value:
-            $ref: "#/resources/lambdaEventSources"
+            $ref: '#/resources/lambdaEventSources'
   secondWorkflowLambda:
     api: lambda
     call: Function
     name:
       $join.-:
-        - $ref: "#/env/APP_NAME"
+        - $ref: '#/env/APP_NAME'
         - post
         - initial
         - workflow
         - lambda
     options:
-      runtime: lambda.Runtime.PYTHON_3_8
+      runtime: lambda.Runtime.NODEJS_18_X
       handler: post_initial_workflow_lambda_handler.handler
       code:
         $new:
@@ -357,30 +357,30 @@ resources:
           call: Code.fromAsset
           value: lambda_function/post_initial_workflow_lambda
       role:
-        $ref: "#/resources/lambdaRole"
+        $ref: '#/resources/lambdaRole'
       timeout: 60
       retryAttempts: 1
       environment:
         OMICS_ROLE:
-          $ref: "#/resources/omicsRole/arn"
+          $ref: '#/resources/omicsRole/arn'
         OUTPUT_S3_LOCATION:
           $join.:
             - s3://
-            - $ref: "#/resources/bucketOutput/name"
+            - $ref: '#/resources/bucketOutput/name'
             - /outputs
         UPSTREAM_WORKFLOW_ID:
-          $ref: "#/env/READY2RUN_ID"
+          $ref: '#/env/READY2RUN_ID'
         ECR_REGISTRY:
           $join..:
-            - $ref: "#/env/AWS_ACCOUNT"
+            - $ref: '#/env/AWS_ACCOUNT'
             - dkr.ecr
-            - $ref: "#/env/AWS_REGION"
+            - $ref: '#/env/AWS_REGION'
             - amazonaws.com
         SPECIES: homo_sapiens
         DIR_CACHE:
           $join:
-            - "s3://aws-genomics-static-"
-            - $ref: "#/env/AWS_REGION"
+            - 's3://aws-genomics-static-'
+            - $ref: '#/env/AWS_REGION'
             - /omics-tutorials/data/databases/vep/
         CACHE_VERSION: 110
         GENOME: GRFh38
@@ -390,7 +390,7 @@ resources:
     call: Rule
     name:
       $join._:
-        - $ref: "#/env/APP_NAME"
+        - $ref: '#/env/APP_NAME'
         - rule_second_workflow_lambda
     options:
       eventPattern:
@@ -407,4 +407,4 @@ resources:
         api: targets
         call: LambdaFunction
         value:
-          $ref: "#/resources/secondWorkflowLambda"
+          $ref: '#/resources/secondWorkflowLambda'
