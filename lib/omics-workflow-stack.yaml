@@ -303,7 +303,7 @@ resources:
         - workflow
         - lambda
     options:
-      runtime: lambda.Runtime.PYTHON_3_8
+      runtime: lambda.Runtime.NODEJS_18_X
       handler: initial_workflow_lambda_handler.handler
       code:
         $new:
@@ -349,7 +349,7 @@ resources:
         - workflow
         - lambda
     options:
-      runtime: lambda.Runtime.PYTHON_3_8
+      runtime: lambda.Runtime.NODEJS_18_X
       handler: post_initial_workflow_lambda_handler.handler
       code:
         $new:

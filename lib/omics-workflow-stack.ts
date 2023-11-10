@@ -173,7 +173,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
       this,
       `${APP_NAME}_initial_workflow_workflow`,
       {
-        runtime: lambda.Runtime.PYTHON_3_8,
+        runtime: lambda.Runtime.NODEJS_18_X,
         handler: 'initial_workflow.handler',
         code: lambda.Code.fromAsset('lambda_function/initial_workflow'),
         role: lambdaRole,
@@ -202,7 +202,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
       this,
       `${APP_NAME}_post_initial_workflow_workflow`,
       {
-        runtime: lambda.Runtime.PYTHON_3_8,
+        runtime: lambda.Runtime.NODEJS_18_X,
         handler: 'post_workflow.handler',
         code: lambda.Code.fromAsset(
           'lambda_function/post_workflow'

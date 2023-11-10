@@ -26,12 +26,16 @@ describe('OmicsWorkflowStack', () => {
 
         // Assert it creates the function with the correct properties...
         template.hasResourceProperties('AWS::Lambda::Function', {
-            Handler: 'handler',
+            Handler: 'initial_workflow.handler',
             Runtime: 'nodejs18.x'
         })
 
-        // Creates the subscription...
-        template.resourceCountIs('AWS::SNS::Subscription', 1)
+        template.hasResourceProperties('AWS::Lambda::Function', {
+            Handler: 'post_workflow.handler',
+            Runtime: 'nodejs18.x'
+        })
+
+        template.resourceCountIs('AWS::SNS::Topic', 1)
 
         // Fully assert on the state machine's IAM role with matchers.
         template.hasResourceProperties(
