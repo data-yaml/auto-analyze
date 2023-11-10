@@ -171,11 +171,11 @@ export class OmicsWorkflowStack extends cdk.Stack {
     // Create Lambda function to submit initial HealthOmics workflow
     const initialWorkflowLambda = new lambda.Function(
       this,
-      `${APP_NAME}_initial_workflow_lambda`,
+      `${APP_NAME}_initial_workflow_workflow`,
       {
         runtime: lambda.Runtime.PYTHON_3_8,
-        handler: 'initial_handler.handler',
-        code: lambda.Code.fromAsset('lambda_function/initial_handler'),
+        handler: 'initial_workflow.handler',
+        code: lambda.Code.fromAsset('lambda_function/initial_workflow'),
         role: lambdaRole,
         timeout: cdk.Duration.seconds(60),
         retryAttempts: 1,
@@ -200,12 +200,12 @@ export class OmicsWorkflowStack extends cdk.Stack {
     // Create Lambda function to submit second Omics pipeline
     const secondWorkflowLambda = new lambda.Function(
       this,
-      `${APP_NAME}_post_initial_workflow_lambda`,
+      `${APP_NAME}_post_initial_workflow_workflow`,
       {
         runtime: lambda.Runtime.PYTHON_3_8,
-        handler: 'post_handler.handler',
+        handler: 'post_workflow.handler',
         code: lambda.Code.fromAsset(
-          'lambda_function/post_handler'
+          'lambda_function/post_workflow'
         ),
         role: lambdaRole,
         timeout: cdk.Duration.seconds(60),
@@ -228,7 +228,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
     // Create an EventBridge rule that triggers lambda2
     const ruleSecondWorkflowLambda = new events.Rule(
       this,
-      `${APP_NAME}_rule_second_workflow_lambda`,
+      `${APP_NAME}_rule_second_workflow_workflow`,
       {
         eventPattern: {
           source: ['aws.omics'],
