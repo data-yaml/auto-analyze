@@ -3,16 +3,12 @@ import * as fs from 'fs'
 import * as util from 'util'
 import { v4 as uuidv4 } from 'uuid'
 
-const OUTPUT_S3_LOCATION = process.env.OUTPUT_S3_LOCATION
-const OMICS_ROLE = process.env.OMICS_ROLE
-const WORKFLOW_ID = process.env.WORKFLOW_ID
-const ECR_REGISTRY = process.env.ECR_REGISTRY
-const LOG_LEVEL = process.env.LOG_LEVEL
+const OUTPUT_S3_LOCATION = process.env.OUTPUT_S3_LOCATION!
+const OMICS_ROLE = process.env.OMICS_ROLE!
+const WORKFLOW_ID = process.env.WORKFLOW_ID!
+const LOG_LEVEL = process.env.LOG_LEVEL!
 
-const omics = new AWS.Omics()
-const s3 = new AWS.S3()
-
-async function localize_s3_file(
+async function download_s3_file(
   bucket: string,
   _key: string,
   local_file: string
@@ -38,43 +34,21 @@ async function localize_s3_file(
   }
 }
 
-async function build_input_payload_for_r2r_gatk_fastq2vcf(
-  sample_manifest_csv: string
+async function fastq_config_from_json(
+  sample_manifest_json: string
 ) {
   const contents = await util.promisify(fs.readFile)(
-    sample_manifest_csv,
+    sample_manifest_json,
     'utf8'
   )
-  const lines = contents.split('\n')
-
-  const header = lines[0].trim()
-  if (header !== 'sample_name,read_group,fastq_1,fastq_2,platform') {
-    throw new Error('Invalid sample manifest CSV header')
-  }
-
-  const samples: any = {}
-  for (const _line of lines.slice(1)) {
-    const [sample_name, read_group, fastq_1, fastq_2, platform] = _line
-      .trim()
-      .split(',')
-    if (!samples[sample_name]) {
-      samples[sample_name] = {}
-    }
-    if (!samples[sample_name][read_group]) {
-      samples[sample_name][read_group] = {}
-    }
-    samples[sample_name][read_group].fastq_1 = fastq_1
-    samples[sample_name][read_group].fastq_2 = fastq_2
-    samples[sample_name][read_group].platform = platform
-  }
-
+  const samples = JSON.parse(contents)
   const samples_params = []
   for (const [_sample, _obj] of Object.entries(samples)) {
     console.info(`Creating input payload for sample: ${_sample}`)
     const _params: any = {}
     _params.sample_name = _sample
     _params.fastq_pairs = []
-    for (const [_rg, _details] of Object.entries(_obj as Record<string, any>)) {
+    for (const [_rg, _details] of Object.entries(_obj as Record<string, any>)) {     
       _params.fastq_pairs.push({
         read_group: _rg,
         fastq_1: _details.fastq_1 as string,
@@ -89,6 +63,7 @@ async function build_input_payload_for_r2r_gatk_fastq2vcf(
 }
 
 export async function handler(event: any, context: any) {
+  const omics = new AWS.Omics()
   console.debug('Received event: ' + JSON.stringify(event, null, 2))
 
   const num_upload_records = event.Records.length
@@ -104,12 +79,11 @@ export async function handler(event: any, context: any) {
     throw new Error('Multiple s3 files in event not yet supported')
   }
 
-  const local_file = '/tmp/sample_manifest.csv'
-  await localize_s3_file(bucket_name, filename, local_file)
-  console.info(`Downloaded manifest CSV to: ${local_file}`)
+  const local_file = '/tmp/sample_manifest.json'
+  await download_s3_file(bucket_name, filename, local_file)
+  console.info(`Downloaded manifest JSON to: ${local_file}`)
 
-  const multi_sample_params =
-    await build_input_payload_for_r2r_gatk_fastq2vcf(local_file)
+  const multi_sample_params = await fastq_config_from_json(local_file)
   let error_count = 0
   for (const _item of multi_sample_params) {
     const _samplename = _item.sample_name
