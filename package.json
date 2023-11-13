@@ -10,7 +10,7 @@
     "watch": "tsc-watch --onSuccess jest",
     "test": "jest",
     "cdk": "cdk",
-    "clean": "rm -f */*.{js,d.ts}",
+    "clean": "rm -f {lib/lambda_function}/*{/*,}.{js,d.ts}",
     "lint": "eslint . --fix --ext .ts && prettier -w ."
   },
   "devDependencies": {

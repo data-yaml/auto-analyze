@@ -182,7 +182,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
       {
         runtime: lambda.Runtime.NODEJS_18_X,
         handler: 'initial_workflow.handler',
-        code: lambda.Code.fromAsset('lambda_function/initial_workflow'),
+        code: lambda.Code.fromAsset('lambda_function/workflow1_fastq'),
         role: lambdaRole,
         timeout: cdk.Duration.seconds(60),
         retryAttempts: 1,
@@ -212,7 +212,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
         runtime: lambda.Runtime.NODEJS_18_X,
         handler: 'post_workflow.handler',
         code: lambda.Code.fromAsset(
-          'lambda_function/post_workflow'
+          'lambda_function/workflow2_vep'
         ),
         role: lambdaRole,
         timeout: cdk.Duration.seconds(60),
