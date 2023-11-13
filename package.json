@@ -6,6 +6,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "coverage": "jest --coverage && open coverage/lcov-report/index.html",
     "watch": "tsc-watch --onSuccess jest",
     "test": "jest",
     "cdk": "cdk",
