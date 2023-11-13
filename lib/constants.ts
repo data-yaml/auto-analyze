@@ -2,6 +2,10 @@
 export const AWS_ACCOUNT_ID = process.env.CDK_DEFAULT_ACCOUNT ?? ''
 export const AWS_REGION = process.env.CDK_DEFAULT_REGION ?? ''
 
+export const APP_NAME = process.env.CDK_APP_NAME ?? 'healthomics'
+export const READY2RUN_WORKFLOW_ID = process.env.READY2RUN_WORKFLOW_ID ?? '9500764'
+export const NOTIFICATION_EMAIL = process.env.CDK_NOTIFICATION_EMAIL ?? 'test@example.com'
+
 export const OUTPUT_S3_LOCATION: string = process.env.OUTPUT_S3_LOCATION!
 export const OMICS_ROLE: string = process.env.OMICS_ROLE!
 export const WORKFLOW_ID: string = process.env.WORKFLOW_ID!
@@ -13,8 +17,6 @@ export const VEP_CACHE_VERSION: string = process.env.CACHE_VERSION!
 export const VEP_GENOME: string = process.env.GENOME!
 export const LOG_LEVEL: string = process.env.LOG_LEVEL!
 
-export const APP_NAME = 'healthomics'
-export const READY2RUN_WORKFLOW_ID = '9500764'
 
 // Dev Environment
 export const DEV_ENV = {
@@ -28,7 +30,5 @@ export const DEV_CONFIG = {
 
   // SQS QUEUE INFORMATION:
   SQS_MESSAGE_VISIBILITY: 1200, // Timeout (secs) for messages in flight (average time to be processed)
-
-  // PLUGINS
-  REQUIREMENTS_FILE: '/files/requirements.txt' // Path to requirements file
+  SQS_POLLING_FREQUENCY: 20, // Frequency (secs) to poll SQS queue for messages
 }

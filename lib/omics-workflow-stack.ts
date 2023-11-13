@@ -1,27 +1,30 @@
 import * as cdk from 'aws-cdk-lib'
 import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as sns from 'aws-cdk-lib/aws-sns'
+import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions'
 import * as events from 'aws-cdk-lib/aws-events'
 import * as targets from 'aws-cdk-lib/aws-events-targets'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import { type Construct } from 'constructs'
+import {
+  APP_NAME,
+  AWS_ACCOUNT_ID,
+  AWS_REGION,
+  NOTIFICATION_EMAIL,
+  READY2RUN_WORKFLOW_ID
+ } from './constants'
+
 
 export class OmicsWorkflowStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    const awsAccount = process.env.CDK_DEFAULT_ACCOUNT ?? ''
-    const AWS_REGION = process.env.CDK_DEFAULT_REGION ?? ''
-
-    const APP_NAME = 'healthomics'
-    const READY2RUN_WORKFLOW_ID = '9500764'
-
     // Create Input S3 bucket
     const bucketInput = new s3.Bucket(
       this,
-      `${APP_NAME}-cka-input-${awsAccount}-${AWS_REGION}`,
+      `${APP_NAME}-cka-input-${AWS_ACCOUNT_ID}-${AWS_REGION}`,
       {
         enforceSSL: true
       }
@@ -30,7 +33,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
     // Create Results S3 bucket
     const bucketOutput = new s3.Bucket(
       this,
-      `${APP_NAME}-cka-output-${awsAccount}-${AWS_REGION}`,
+      `${APP_NAME}-cka-output-${AWS_ACCOUNT_ID}-${AWS_REGION}`,
       {
         enforceSSL: true
       }
@@ -41,6 +44,10 @@ export class OmicsWorkflowStack extends cdk.Stack {
       displayName: `${APP_NAME}_workflow_status_topic`,
       topicName: `${APP_NAME}_workflow_status_topic`
     })
+    const emailAddress = new cdk.CfnParameter(this, NOTIFICATION_EMAIL);
+    snsTopic.addSubscription(
+      new subscriptions.EmailSubscription(emailAddress.valueAsString)
+    )
 
     // Create an EventBridge rule that sends SNS notification on failure
     const ruleWorkflowStatusTopic = new events.Rule(
@@ -92,7 +99,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
         'ecr:GetDownloadUrlForLayer',
         'ecr:BatchCheckLayerAvailability'
       ],
-      resources: [`arn:aws:ecr:${AWS_REGION}:${awsAccount}:repository/*`]
+      resources: [`arn:aws:ecr:${AWS_REGION}:${AWS_ACCOUNT_ID}:repository/*`]
     })
     omicsRole.addToPolicy(omicsEcrPolicy)
 
@@ -105,8 +112,8 @@ export class OmicsWorkflowStack extends cdk.Stack {
         'logs:PutLogEvents'
       ],
       resources: [
-        `arn:aws:logs:${AWS_REGION}:${awsAccount}:log-group:/aws/omics/WorkflowLog:log-stream:*`,
-        `arn:aws:logs:${AWS_REGION}:${awsAccount}:log-group:/aws/omics/WorkflowLog:*`
+        `arn:aws:logs:${AWS_REGION}:${AWS_ACCOUNT_ID}:log-group:/aws/omics/WorkflowLog:log-stream:*`,
+        `arn:aws:logs:${AWS_REGION}:${AWS_ACCOUNT_ID}:log-group:/aws/omics/WorkflowLog:*`
       ]
     })
     omicsRole.addToPolicy(omicsLoggingPolicy)
@@ -184,7 +191,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
           OUTPUT_S3_LOCATION: 's3://' + bucketOutput.bucketName + '/outputs',
           WORKFLOW_ID: READY2RUN_WORKFLOW_ID,
           ECR_REGISTRY:
-            awsAccount + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
+            AWS_ACCOUNT_ID + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
           LOG_LEVEL: 'INFO'
         }
       }
@@ -215,7 +222,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
           OUTPUT_S3_LOCATION: 's3://' + bucketOutput.bucketName + '/outputs',
           UPSTREAM_WORKFLOW_ID: READY2RUN_WORKFLOW_ID,
           ECR_REGISTRY:
-            awsAccount + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
+            AWS_ACCOUNT_ID + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
           SPECIES: 'homo_sapiens',
           DIR_CACHE: `s3://aws-genomics-static-${AWS_REGION}/omics-tutorials/data/databases/vep/`,
           CACHE_VERSION: '110',
@@ -243,4 +250,5 @@ export class OmicsWorkflowStack extends cdk.Stack {
       new targets.LambdaFunction(secondWorkflowLambda)
     )
   }
+  // subscribe 
 }
