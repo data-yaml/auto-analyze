@@ -1,10 +1,10 @@
-#!/usr/bin/env node
-
 import * as fs from 'fs'
 import * as path from 'path'
-import * as util from 'util'
 
-const AWS_REGION = process.env.CDK_DEFAULT_REGION ?? ''
+import { AWS_REGION } from '../lib/constants'
+import { ManifestUploadStack } from '../lib/manifest-upload'
+import * as cdk from 'aws-cdk-lib'
+
 const CWD = process.cwd()
 const FASTQ = path.join(CWD, 'workflows', 'fastq')
 const SOURCE = path.join(FASTQ, 'aws_region.json')
@@ -24,3 +24,11 @@ const dest = source.replace(/{aws-region}/g, AWS_REGION)
 console.log(dest)
 fs.writeFileSync(DEST, dest, 'utf8')
 console.log(`DEST: ${DEST}`)
+
+// create stack
+const app = new cdk.App()
+new ManifestUploadStack(app, `ManifestUploadStack-${AWS_REGION}`, {
+    env: {
+        region: AWS_REGION
+    }
+})

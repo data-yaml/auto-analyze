@@ -7,19 +7,8 @@ describe('OmicsWorkflowStack', () => {
     test('synthesizes the way we expect', () => {
         const app = new cdk.App()
 
-        // Since the StateMachineStack consumes resources from a separate stack
-        // (cross-stack references), we create a stack for our SNS topics to live
-        // in here. These topics can then be passed to the StateMachineStack later,
-        // creating a cross-stack reference.
-        const topicsStack = new cdk.Stack(app, 'TopicsStack')
-
-        // Create the topic the stack we're testing will reference.
-        const topics = [new sns.Topic(topicsStack, 'Topic1', {})]
-
         // Create the OmicsWorkflowStack.
-        const omicsWorkflowStack = new OmicsWorkflowStack(app, 'OmicsWorkflowStack', {
-            // topics
-        })
+        const omicsWorkflowStack = new OmicsWorkflowStack(app, 'OmicsWorkflowStack', { })
 
         // Prepare the stack for assertions.
         const template = Template.fromStack(omicsWorkflowStack)

@@ -1,6 +1,5 @@
 import * as cdk from 'aws-cdk-lib'
 import * as s3 from 'aws-cdk-lib/aws-s3'
-import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment'
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions'
 import * as events from 'aws-cdk-lib/aws-events'
@@ -250,10 +249,5 @@ export class OmicsWorkflowStack extends cdk.Stack {
     rulevepWorkflowLambda.addTarget(
       new targets.LambdaFunction(vepWorkflowLambda)
     )
-
-    const manifest_upload = new s3deploy.BucketDeployment(this, `${APP_NAME}_deploy_regional_manifest`, {
-      sources: [s3deploy.Source.asset(`./workflows/fastq/${AWS_REGION}/`)],
-      destinationBucket: bucketInput
-    })
   } 
 }
