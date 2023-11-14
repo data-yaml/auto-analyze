@@ -63,7 +63,6 @@ async function fastq_config_from_json(
 }
 
 export async function handler(event: any, context: any) {
-  const omics = new AWS.Omics()
   console.debug('Received event: ' + JSON.stringify(event, null, 2))
 
   const num_upload_records = event.Records.length
@@ -86,35 +85,40 @@ export async function handler(event: any, context: any) {
   const multi_sample_params = await fastq_config_from_json(local_file)
   let error_count = 0
   for (const _item of multi_sample_params) {
-    const _samplename = _item.sample_name
-    console.info(`Starting workflow for sample: ${_samplename}`)
-    const run_name = `Sample_${_samplename}_` + uuidv4()
-    try {
-      const options = {
-        workflowType: 'BATCH', // add a workflowType
-        workflowId: WORKFLOW_ID,
-        name: run_name,
-        roleArn:
-          OMICS_ROLE || 'arn:aws:iam::0000000000:role/omics-service-role',
-        parameters: _item,
-        logLevel: LOG_LEVEL,
-        outputUri: OUTPUT_S3_LOCATION,
-        tags: {
-          SOURCE: 'LAMBDA_INITIAL_WORKFLOW',
-          RUN_NAME: run_name,
-          SAMPLE_MANIFEST: `s3://${bucket_name}/${filename}`
-        },
-        requestId: uuidv4() // add a unique requestId
-      }
-      const response = await omics.startRun(options).promise()
-      console.info(`Workflow response: ${JSON.stringify(response)}`)
-    } catch (e: any) {
-      console.error('Error : ' + e.toString())
-      error_count += 1
-    }
+    error_count = await run_workflow(_item.sample_name, bucket_name, filename, error_count)
   }
 
   if (error_count > 0) {
     throw new Error('Error launching some workflows, check logs')
   }
 }
+async function run_workflow(_item: { [key: string]: string }, bucket_name: string, filename: string, error_count: number) {
+  const omics = new AWS.Omics()
+  const _samplename = _item.sample_name
+  console.info(`Starting workflow for sample: ${_samplename}`)
+  const run_name = `Sample_${_samplename}_` + uuidv4()
+  try {
+    const options = {
+      workflowType: 'BATCH', // add a workflowType
+      workflowId: WORKFLOW_ID,
+      name: run_name,
+      roleArn: OMICS_ROLE,
+      parameters: _item,
+      logLevel: LOG_LEVEL,
+      outputUri: OUTPUT_S3_LOCATION,
+      tags: {
+        SOURCE: 'LAMBDA_INITIAL_WORKFLOW',
+        RUN_NAME: run_name,
+        SAMPLE_MANIFEST: `s3://${bucket_name}/${filename}`
+      },
+      requestId: uuidv4() // add a unique requestId
+    }
+    const response = await omics.startRun(options).promise()
+    console.info(`Workflow response: ${JSON.stringify(response)}`)
+  } catch (e: any) {
+    console.error('Error : ' + e.toString())
+    error_count += 1
+  }
+  return error_count
+}
+

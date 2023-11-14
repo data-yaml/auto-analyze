@@ -176,12 +176,12 @@ export class OmicsWorkflowStack extends cdk.Stack {
     lambdaRole.addToPolicy(lambdaOmicsPolicy)
 
     // Create Lambda function to submit initial HealthOmics workflow
-    const initialWorkflowLambda = new lambda.Function(
+    const fastqWorkflowLambda = new lambda.Function(
       this,
-      `${APP_NAME}_initial_workflow_workflow`,
+      `${APP_NAME}_fastq_workflow`,
       {
         runtime: lambda.Runtime.NODEJS_18_X,
-        handler: 'initial_workflow.handler',
+        handler: 'workflow1_fastq.handler',
         code: lambda.Code.fromAsset('lambda_function/workflow1_fastq'),
         role: lambdaRole,
         timeout: cdk.Duration.seconds(60),
@@ -196,21 +196,21 @@ export class OmicsWorkflowStack extends cdk.Stack {
         }
       }
     )
-
     // Add S3 event source to Lambda
-    initialWorkflowLambda.addEventSource(
+    fastqWorkflowLambda.addEventSource(
       new lambdaEventSources.S3EventSource(bucketInput, {
         events: [s3.EventType.OBJECT_CREATED],
-        filters: [{ prefix: 'fastqs/', suffix: '.csv' }]
+        filters: [{ prefix: 'fastqs/', suffix: '.json' }]
       })
     )
+
     // Create Lambda function to submit second Omics pipeline
-    const secondWorkflowLambda = new lambda.Function(
+    const vepWorkflowLambda = new lambda.Function(
       this,
-      `${APP_NAME}_post_initial_workflow_workflow`,
+      `${APP_NAME}_vep_workflow`,
       {
         runtime: lambda.Runtime.NODEJS_18_X,
-        handler: 'post_workflow.handler',
+        handler: 'workflow2_vep.handler',
         code: lambda.Code.fromAsset(
           'lambda_function/workflow2_vep'
         ),
@@ -233,7 +233,7 @@ export class OmicsWorkflowStack extends cdk.Stack {
     )
 
     // Create an EventBridge rule that triggers lambda2
-    const ruleSecondWorkflowLambda = new events.Rule(
+    const rulevepWorkflowLambda = new events.Rule(
       this,
       `${APP_NAME}_rule_second_workflow_workflow`,
       {
@@ -246,8 +246,8 @@ export class OmicsWorkflowStack extends cdk.Stack {
         }
       }
     )
-    ruleSecondWorkflowLambda.addTarget(
-      new targets.LambdaFunction(secondWorkflowLambda)
+    rulevepWorkflowLambda.addTarget(
+      new targets.LambdaFunction(vepWorkflowLambda)
     )
   }
   // subscribe 

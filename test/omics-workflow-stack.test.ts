@@ -26,12 +26,12 @@ describe('OmicsWorkflowStack', () => {
 
         // Assert it creates the function with the correct properties...
         template.hasResourceProperties('AWS::Lambda::Function', {
-            Handler: 'initial_workflow.handler',
+            Handler: 'workflow1_fastq.handler',
             Runtime: 'nodejs18.x'
         })
 
         template.hasResourceProperties('AWS::Lambda::Function', {
-            Handler: 'post_workflow.handler',
+            Handler: 'workflow2_vep.handler',
             Runtime: 'nodejs18.x'
         })
 
