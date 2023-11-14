@@ -45,7 +45,7 @@ async function fastq_config_from_json(
   const samples_params = []
   for (const [_sample, _obj] of Object.entries(samples)) {
     console.info(`Creating input payload for sample: ${_sample}`)
-    const _params: any = {}
+    const _params: { [key: string]: any } = {}
     _params.sample_name = _sample
     _params.fastq_pairs = []
     for (const [_rg, _details] of Object.entries(_obj as Record<string, any>)) {     

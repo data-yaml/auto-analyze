@@ -2,10 +2,12 @@
   "name": "auto-analyze",
   "version": "0.1.0",
   "bin": {
-    "auto-analyze": "bin/auto-analyze.js"
+    "auto-analyze": "bin/auto-analyze.js",
+    "make-manifest": "bin/make-manifest.js"
   },
   "scripts": {
     "build": "tsc",
+    "manifest": "tsc && npx make-manifest",
     "coverage": "jest --coverage && open coverage/lcov-report/index.html",
     "watch": "tsc-watch --onSuccess jest",
     "test": "jest",
