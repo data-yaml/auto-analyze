@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 
 import * as fs from 'fs'
+import * as path from 'path'
+import * as util from 'util'
 
 const AWS_REGION = process.env.CDK_DEFAULT_REGION ?? ''
-const SOURCE="./workflows/fastq/aws_region.json"
-const DEST =`./workflows/fastq/${AWS_REGION}.json`
+const CWD = process.cwd()
+const FASTQ = path.join(CWD, 'workflows', 'fastq')
+const SOURCE = path.join(FASTQ, 'aws_region.json')
+const DEST_FOLDER = path.join(FASTQ, AWS_REGION)
+const DEST = path.join(DEST_FOLDER, `${AWS_REGION}.json`)
+fs.mkdirSync(DEST_FOLDER, { recursive: true })
 
 console.log(`AWS_REGION: ${AWS_REGION}`)
-console.log(`cwd(): ${process.cwd()}`)
+console.log(`folder: ${FASTQ}`)
 
 // read the source file and print its contents
 console.log(`SOURCE: ${SOURCE}`)
