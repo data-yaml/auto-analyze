@@ -5,7 +5,8 @@ import * as path from 'path'
 import { S3 } from '@aws-sdk/client-s3'
 
 import { AWS_REGION } from '../lib/constants'
-const INPUT_BUCKET = 'omicsworkflowstack-omics20231113ckainput8507877171-vx8ro5guxcid'
+const INPUT_BUCKET =
+  'omicsworkflowstack-omics20231113ckainput8507877171-vx8ro5guxcid'
 const CWD = process.cwd()
 const FASTQ = path.join(CWD, 'workflows', 'fastq')
 const SOURCE = path.join(FASTQ, 'aws_region.json')

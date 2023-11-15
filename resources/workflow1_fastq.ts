@@ -1,6 +1,6 @@
-import * as AWS from 'aws-sdk'
-import * as fs from 'fs'
-import * as util from 'util'
+import { Omics, S3 } from 'aws-sdk'
+import { createWriteStream, readFile } from 'fs'
+import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 
 const OUTPUT_S3_LOCATION = process.env.OUTPUT_S3_LOCATION!
@@ -8,15 +8,15 @@ const OMICS_ROLE = process.env.OMICS_ROLE!
 const WORKFLOW_ID = process.env.WORKFLOW_ID!
 const LOG_LEVEL = process.env.LOG_LEVEL!
 
-async function download_s3_file (
+async function download_s3_file(
   bucket: string,
   _key: string,
   local_file: string
 ) {
-  const s3 = new AWS.S3()
+  const s3 = new S3()
 
   try {
-    const file = fs.createWriteStream(local_file)
+    const file = createWriteStream(local_file)
     const stream = s3
       .getObject({ Bucket: bucket, Key: _key })
       .createReadStream()
@@ -34,13 +34,8 @@ async function download_s3_file (
   }
 }
 
-async function fastq_config_from_json (
-  sample_manifest_json: string
-) {
-  const contents = await util.promisify(fs.readFile)(
-    sample_manifest_json,
-    'utf8'
-  )
+async function fastq_config_from_json(sample_manifest_json: string) {
+  const contents = await promisify(readFile)(sample_manifest_json, 'utf8')
   const samples = JSON.parse(contents)
   const samples_params = []
   for (const [_sample, _obj] of Object.entries(samples)) {
@@ -62,7 +57,7 @@ async function fastq_config_from_json (
   return samples_params
 }
 
-export async function handler (event: any, context: any) {
+export async function handler(event: any, context: any) {
   console.debug('Received event: ' + JSON.stringify(event, null, 2))
 
   const num_upload_records = event.Records.length
@@ -85,15 +80,25 @@ export async function handler (event: any, context: any) {
   const multi_sample_params = await fastq_config_from_json(local_file)
   let error_count = 0
   for (const _item of multi_sample_params) {
-    error_count = await run_workflow(_item.sample_name, bucket_name, filename, error_count)
+    error_count = await run_workflow(
+      _item.sample_name,
+      bucket_name,
+      filename,
+      error_count
+    )
   }
 
   if (error_count > 0) {
     throw new Error('Error launching some workflows, check logs')
   }
 }
-async function run_workflow (_item: Record<string, string>, bucket_name: string, filename: string, error_count: number) {
-  const omics = new AWS.Omics()
+async function run_workflow(
+  _item: Record<string, string>,
+  bucket_name: string,
+  filename: string,
+  error_count: number
+) {
+  const omics = new Omics()
   const _samplename = _item.sample_name
   console.info(`Starting workflow for sample: ${_samplename}`)
   const run_name = `Sample_${_samplename}_` + uuidv4()

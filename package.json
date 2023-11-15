@@ -10,7 +10,7 @@
     "clean": "rm -f {lib,bin,resources}/*{/*,}.{js,d.ts} && npm run lint",
     "coverage": "jest --coverage && open coverage/lcov-report/index.html",
     "deploy": "npm run build && cdk deploy --require-approval never",
-    "lint": "eslint bin lib resources --fix --ext .ts && prettier -w .",
+    "lint": "prettier -w .",
     "start": "tsc && npx manifest",
     "test": "jest",
     "watch": "tsc-watch --onSuccess jest"

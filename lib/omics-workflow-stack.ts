@@ -22,20 +22,18 @@ import {
 } from './constants'
 
 export class OmicsWorkflowStack extends Stack {
-  constructor (scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
 
     // Create Input S3 bucket
     const bucketInput = new Bucket(this, INPUT_BUCKET, {
       enforceSSL: true
-    }
-    )
+    })
 
     // Create Results S3 bucket
     const bucketOutput = new Bucket(this, OUTPUT_BUCKET, {
       enforceSSL: true
-    }
-    )
+    })
 
     // SNS Topic for failure notifications
     const snsTopic = new Topic(this, `${APP_NAME}_workflow_status_topic`, {
@@ -239,8 +237,6 @@ export class OmicsWorkflowStack extends Stack {
         }
       }
     )
-    rulevepWorkflowLambda.addTarget(
-      new LambdaFunction(vepWorkflowLambda)
-    )
+    rulevepWorkflowLambda.addTarget(new LambdaFunction(vepWorkflowLambda))
   }
 }
