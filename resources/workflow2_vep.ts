@@ -41,14 +41,14 @@ const s3 = new AWS.S3()
     }
 }
 */
-function splitS3Path(s3Path: string): [string, string] {
+function splitS3Path (s3Path: string): [string, string] {
   const pathParts = s3Path.replace('s3://', '').split('/')
   const bucket = pathParts.shift()!
   const key = pathParts.join('/')
   return [bucket, key]
 }
 
-export async function handler(event: any, context: any): Promise<any> {
+export async function handler (event: any, context: any): Promise<any> {
   const AWS_ACCOUNT_ID = (await new AWS.STS().getCallerIdentity().promise())
     .Account!
 

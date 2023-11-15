@@ -9,7 +9,6 @@ export const NOTIFICATION_EMAIL = process.env.CDK_NOTIFICATION_EMAIL ?? 'test@ex
 export const INPUT_BUCKET = `${APP_NAME}-cka-input-${AWS_ACCOUNT_ID}-${AWS_REGION}`
 export const OUTPUT_BUCKET = `${APP_NAME}-cka-output-${AWS_ACCOUNT_ID}-${AWS_REGION}`
 
-
 /*
 // used only by lambda functions?
 

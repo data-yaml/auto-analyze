@@ -29,13 +29,13 @@ console.log(`DEST: ${DEST}`)
 
 // upload dest to INPUT_BUCKET
 const s3 = new S3({ region: AWS_REGION })
-const s3_params = {
+const s3params = {
   Bucket: INPUT_BUCKET,
   Key: DEST_KEY,
-  Body: dest,
+  Body: dest
 }
-console.log(s3_params)
-s3.putObject(s3_params)
+console.log(s3params)
+s3.putObject(s3params)
   .then((data) => {
     console.log(data)
   })

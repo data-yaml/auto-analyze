@@ -8,7 +8,7 @@ const OMICS_ROLE = process.env.OMICS_ROLE!
 const WORKFLOW_ID = process.env.WORKFLOW_ID!
 const LOG_LEVEL = process.env.LOG_LEVEL!
 
-async function download_s3_file(
+async function download_s3_file (
   bucket: string,
   _key: string,
   local_file: string
@@ -34,7 +34,7 @@ async function download_s3_file(
   }
 }
 
-async function fastq_config_from_json(
+async function fastq_config_from_json (
   sample_manifest_json: string
 ) {
   const contents = await util.promisify(fs.readFile)(
@@ -45,10 +45,10 @@ async function fastq_config_from_json(
   const samples_params = []
   for (const [_sample, _obj] of Object.entries(samples)) {
     console.info(`Creating input payload for sample: ${_sample}`)
-    const _params: { [key: string]: any } = {}
+    const _params: Record<string, any> = {}
     _params.sample_name = _sample
     _params.fastq_pairs = []
-    for (const [_rg, _details] of Object.entries(_obj as Record<string, any>)) {     
+    for (const [_rg, _details] of Object.entries(_obj as Record<string, any>)) {
       _params.fastq_pairs.push({
         read_group: _rg,
         fastq_1: _details.fastq_1 as string,
@@ -62,7 +62,7 @@ async function fastq_config_from_json(
   return samples_params
 }
 
-export async function handler(event: any, context: any) {
+export async function handler (event: any, context: any) {
   console.debug('Received event: ' + JSON.stringify(event, null, 2))
 
   const num_upload_records = event.Records.length
@@ -92,7 +92,7 @@ export async function handler(event: any, context: any) {
     throw new Error('Error launching some workflows, check logs')
   }
 }
-async function run_workflow(_item: { [key: string]: string }, bucket_name: string, filename: string, error_count: number) {
+async function run_workflow (_item: Record<string, string>, bucket_name: string, filename: string, error_count: number) {
   const omics = new AWS.Omics()
   const _samplename = _item.sample_name
   console.info(`Starting workflow for sample: ${_samplename}`)
@@ -121,4 +121,3 @@ async function run_workflow(_item: { [key: string]: string }, bucket_name: strin
   }
   return error_count
 }
-
