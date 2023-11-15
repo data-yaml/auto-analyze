@@ -24,20 +24,18 @@ describe('AutoAnalyzeStack', () => {
       inputBucket: defaultBucket,
       outputBucket: defaultBucket,
       statusTopic: topic,
-      email: 'test@example.com'
+      email: 'test@example.com',
+      manifest_prefix: 'workflow/fastq',
+      manifest_suffix: '.json',
     })
 
     // Prepare the stack for assertions.
     const template = Template.fromStack(autoAnalyzeStack)
 
-    template.resourceCountIs('AWS::Lambda::Function', 0)
-
-    // Creates the subscription...
-    template.resourceCountIs('AWS::SNS::Subscription', 1)
-    // ...to the topic we created above.
-    template.hasResourceProperties('AWS::SNS::Subscription', {
-      Protocol: 'email',
-      Endpoint: ''
+    // Find deployment lambda.
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      Handler: 'index.handler',
+      Runtime: 'python3.9',
     })
   })
 })

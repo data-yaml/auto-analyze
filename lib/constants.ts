@@ -15,7 +15,7 @@ export const MANIFEST_PREFIX = 'workflow/fastq'
 export const MANIFEST_SUFFIX = '.json'
 
 /*
-// used only by lambda functions?
+// placeholders for lambda functions
 
 export const OUTPUT_S3_LOCATION: string = process.env.OUTPUT_S3_LOCATION!
 export const OMICS_ROLE: string = process.env.OMICS_ROLE!

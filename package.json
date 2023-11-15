@@ -2,8 +2,7 @@
   "name": "auto-analyze",
   "version": "0.1.0",
   "bin": {
-    "auto-analyze": "bin/auto-analyze.js",
-    "manifest": "bin/manifest.js"
+    "auto-analyze": "bin/auto-analyze.js"
   },
   "scripts": {
     "build": "tsc",
@@ -12,6 +11,7 @@
     "deploy": "npm run build && cdk deploy --require-approval never",
     "lint": "prettier -w .",
     "start": "tsc && npx manifest",
+    "synth": "tsc && npx cdk synth",
     "test": "jest",
     "watch": "tsc-watch --onSuccess jest"
   },

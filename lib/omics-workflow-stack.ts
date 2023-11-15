@@ -51,9 +51,10 @@ export class OmicsWorkflowStack extends Stack {
     })
 
     // SNS Topic for failure notifications
-    this.statusTopic = new Topic(this, `${APP_NAME}_workflow_status_topic`, {
-      displayName: `${APP_NAME}_workflow_status_topic`,
-      topicName: `${APP_NAME}_workflow_status_topic`
+    const topicName = `${APP_NAME}_workflow_status_topic`
+    this.statusTopic = new Topic(this, topicName, {
+      displayName: topicName,
+      topicName: topicName
     })
 
     // Create an EventBridge rule that sends SNS notification on failure
@@ -105,7 +106,7 @@ export class OmicsWorkflowStack extends Stack {
     // Create an EventBridge rule that triggers lambda2
     const rulevepWorkflowLambda = new Rule(
       this,
-      `${APP_NAME}_rule_second_workflow_workflow`,
+      `${APP_NAME}_rule_workflow2_vep`,
       {
         eventPattern: {
           source: ['aws.omics'],

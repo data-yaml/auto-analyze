@@ -11,7 +11,9 @@ const autoAnalyzeStack = new AutoAnalyzeStack(app, 'AutoAnalyzeStack', {
   inputBucket: omicsWorkflowStack.inputBucket,
   outputBucket: omicsWorkflowStack.outputBucket,
   statusTopic: omicsWorkflowStack.statusTopic,
-  email: NOTIFICATION_EMAIL
+  email: NOTIFICATION_EMAIL,
+  manifest_prefix: omicsWorkflowStack.manifest_prefix,
+  manifest_suffix: omicsWorkflowStack.manifest_suffix,
 })
 
 console.log('Hello, CDK!', omicsWorkflowStack)
