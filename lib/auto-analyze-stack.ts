@@ -6,7 +6,7 @@ import { Topic } from 'aws-cdk-lib/aws-sns'
 export interface AutoAnalyzeStackProps extends StackProps {
   readonly inputBucket: Bucket
   readonly outputBucket: Bucket
-  readonly topics: Topic[]
+  readonly statusTopic: Topic
   readonly email: string
 }
 
@@ -19,6 +19,10 @@ export class AutoAnalyzeStack extends Stack {
     super(scope, id, props)
 
     // subscribe email to sns topic
+    /*    const emailAddress = new CfnParameter(this, NOTIFICATION_EMAIL);
+    snsTopic.addSubscription(
+      new subscriptions.EmailSubscription(emailAddress.valueAsString)
+    ) */
 
     // subscribe email to buckets
 

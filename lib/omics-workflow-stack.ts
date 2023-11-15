@@ -22,29 +22,28 @@ import {
 } from './constants'
 
 export class OmicsWorkflowStack extends Stack {
+  public readonly inputBucket: Bucket
+  public readonly outputBucket: Bucket
+  public readonly statusTopic: Topic
+
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
 
     // Create Input S3 bucket
-    const bucketInput = new Bucket(this, INPUT_BUCKET, {
+    this.inputBucket = new Bucket(this, INPUT_BUCKET, {
       enforceSSL: true
     })
 
     // Create Results S3 bucket
-    const bucketOutput = new Bucket(this, OUTPUT_BUCKET, {
+    this.outputBucket = new Bucket(this, OUTPUT_BUCKET, {
       enforceSSL: true
     })
 
     // SNS Topic for failure notifications
-    const snsTopic = new Topic(this, `${APP_NAME}_workflow_status_topic`, {
+    this.statusTopic = new Topic(this, `${APP_NAME}_workflow_status_topic`, {
       displayName: `${APP_NAME}_workflow_status_topic`,
       topicName: `${APP_NAME}_workflow_status_topic`
     })
-
-    /*    const emailAddress = new CfnParameter(this, NOTIFICATION_EMAIL);
-    snsTopic.addSubscription(
-      new subscriptions.EmailSubscription(emailAddress.valueAsString)
-    ) */
 
     // Create an EventBridge rule that sends SNS notification on failure
     const ruleWorkflowStatusTopic = new Rule(
@@ -60,10 +59,10 @@ export class OmicsWorkflowStack extends Stack {
         }
       }
     )
-    ruleWorkflowStatusTopic.addTarget(new SnsTopic(snsTopic))
+    ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
 
     // Grant EventBridge permission to publish to the SNS topic
-    snsTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
+    this.statusTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
 
     // Create an IAM service role for HealthOmics workflows
     const omicsRole = new Role(this, `${APP_NAME}-omics-service-role`, {
@@ -74,10 +73,10 @@ export class OmicsWorkflowStack extends Stack {
     const omicsS3ReadPolicy = new PolicyStatement({
       actions: ['s3:ListBucket', 's3:GetObject'],
       resources: [
-        bucketInput.bucketArn,
-        bucketOutput.bucketArn,
-        bucketInput.bucketArn + '/*',
-        bucketOutput.bucketArn + '/*'
+        this.inputBucket.bucketArn,
+        this.outputBucket.bucketArn,
+        this.inputBucket.bucketArn + '/*',
+        this.outputBucket.bucketArn + '/*'
       ]
     })
     omicsRole.addToPolicy(omicsS3ReadPolicy)
@@ -85,7 +84,10 @@ export class OmicsWorkflowStack extends Stack {
     // Limit to buckets where outputs need to be written
     const omicsS3WritePolicy = new PolicyStatement({
       actions: ['s3:ListBucket', 's3:PutObject'],
-      resources: [bucketOutput.bucketArn, bucketOutput.bucketArn + '/*']
+      resources: [
+        this.outputBucket.bucketArn,
+        this.outputBucket.bucketArn + '/*'
+      ]
     })
     omicsRole.addToPolicy(omicsS3WritePolicy)
 
@@ -158,10 +160,10 @@ export class OmicsWorkflowStack extends Stack {
     const lambdaS3Policy = new PolicyStatement({
       actions: ['s3:ListBucket', 's3:GetObject', 's3:PutObject'],
       resources: [
-        bucketInput.bucketArn,
-        bucketOutput.bucketArn,
-        bucketInput.bucketArn + '/*',
-        bucketOutput.bucketArn + '/*'
+        this.inputBucket.bucketArn,
+        this.outputBucket.bucketArn,
+        this.inputBucket.bucketArn + '/*',
+        this.outputBucket.bucketArn + '/*'
       ]
     })
     lambdaRole.addToPolicy(lambdaS3Policy)
@@ -183,7 +185,8 @@ export class OmicsWorkflowStack extends Stack {
         retryAttempts: 1,
         environment: {
           OMICS_ROLE: omicsRole.roleArn,
-          OUTPUT_S3_LOCATION: 's3://' + bucketOutput.bucketName + '/outputs',
+          OUTPUT_S3_LOCATION:
+            's3://' + this.outputBucket.bucketName + '/outputs',
           WORKFLOW_ID: READY2RUN_WORKFLOW_ID,
           ECR_REGISTRY:
             AWS_ACCOUNT_ID + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
@@ -193,7 +196,7 @@ export class OmicsWorkflowStack extends Stack {
     )
     // Add S3 event source to Lambda
     fastqWorkflowLambda.addEventSource(
-      new S3EventSource(bucketInput, {
+      new S3EventSource(this.inputBucket, {
         events: [EventType.OBJECT_CREATED],
         filters: [{ prefix: 'fastqs/', suffix: '.json' }]
       })
@@ -210,7 +213,8 @@ export class OmicsWorkflowStack extends Stack {
         retryAttempts: 1,
         environment: {
           OMICS_ROLE: omicsRole.roleArn,
-          OUTPUT_S3_LOCATION: 's3://' + bucketOutput.bucketName + '/outputs',
+          OUTPUT_S3_LOCATION:
+            's3://' + this.outputBucket.bucketName + '/outputs',
           UPSTREAM_WORKFLOW_ID: READY2RUN_WORKFLOW_ID,
           ECR_REGISTRY:
             AWS_ACCOUNT_ID + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
