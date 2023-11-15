@@ -13,11 +13,11 @@ async function download_s3_file(
   _key: string,
   local_file: string
 ) {
-  const s3Client = new AWS.S3()
+  const s3 = new AWS.S3()
 
   try {
     const file = fs.createWriteStream(local_file)
-    const stream = s3Client
+    const stream = s3
       .getObject({ Bucket: bucket, Key: _key })
       .createReadStream()
     stream.pipe(file)

@@ -2,7 +2,6 @@ import * as AWS from 'aws-sdk'
 // import * as os from 'os';
 // import { ClientError } from 'aws-sdk/lib/error';
 import * as uuid from 'uuid'
-import { S3 } from 'aws-sdk'
 
 const OUTPUT_S3_LOCATION: string = process.env.OUTPUT_S3_LOCATION!
 const OMICS_ROLE: string = process.env.OMICS_ROLE!
@@ -85,8 +84,6 @@ export async function handler(event: any, context: any): Promise<any> {
   }
 
   // list all files in output bucket
-
-  const s3 = new S3()
 
   const run_output_path = `${omics_workflow_run.outputUri}/${omics_run_id}`
   const [s3bucket, s3key] = splitS3Path(run_output_path)
