@@ -16,7 +16,7 @@ export function regionalManifest(region: string) {
   // substitute the `region` for the string "{aws-region}"
   const dest = source.replace(/{aws-region}/g, region) + '\n'
   // write the destination file
-  console.log(dest)
+  // console.debug(dest)
   fs.writeFileSync(DEST, dest, 'utf8')
   return DEST_FOLDER
 }
