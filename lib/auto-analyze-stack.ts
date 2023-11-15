@@ -37,7 +37,7 @@ export class AutoAnalyzeStack extends Stack {
     const deploy = new BucketDeployment(this, 'DeployManifest', {
       sources: [Source.asset(manifestFolder)],
       destinationBucket: props.inputBucket,
-      destinationKeyPrefix: manifestKey,
+      destinationKeyPrefix: manifestKey
     })
   }
 }

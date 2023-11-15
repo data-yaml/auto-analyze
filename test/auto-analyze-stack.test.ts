@@ -26,7 +26,7 @@ describe('AutoAnalyzeStack', () => {
       statusTopic: topic,
       email: 'test@example.com',
       manifest_prefix: 'workflow/fastq',
-      manifest_suffix: '.json',
+      manifest_suffix: '.json'
     })
 
     // Prepare the stack for assertions.
@@ -35,7 +35,11 @@ describe('AutoAnalyzeStack', () => {
     // Find deployment lambda.
     template.hasResourceProperties('AWS::Lambda::Function', {
       Handler: 'index.handler',
-      Runtime: 'python3.9',
+      Runtime: 'python3.9'
+    })
+
+    template.hasResourceProperties('Custom::CDKBucketDeployment', {
+      DestinationBucketKeyPrefix: Match.stringLikeRegexp('workflow/fastq/*'),
     })
   })
 })

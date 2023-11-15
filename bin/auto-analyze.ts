@@ -13,7 +13,7 @@ const autoAnalyzeStack = new AutoAnalyzeStack(app, 'AutoAnalyzeStack', {
   statusTopic: omicsWorkflowStack.statusTopic,
   email: NOTIFICATION_EMAIL,
   manifest_prefix: omicsWorkflowStack.manifest_prefix,
-  manifest_suffix: omicsWorkflowStack.manifest_suffix,
+  manifest_suffix: omicsWorkflowStack.manifest_suffix
 })
 
-console.log('Hello, CDK!', omicsWorkflowStack)
+console.log('autoAnalyzeStack complete!', autoAnalyzeStack)
