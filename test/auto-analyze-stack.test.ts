@@ -1,55 +1,43 @@
-import { Match, Template } from 'aws-cdk-lib/assertions'
 import * as cdk from 'aws-cdk-lib'
-import * as sns from 'aws-cdk-lib/aws-sns'
+import { Match, Template } from 'aws-cdk-lib/assertions'
 import { AutoAnalyzeStack } from '../lib/auto-analyze-stack'
+import { Topic } from 'aws-cdk-lib/aws-sns'
+import { Bucket } from 'aws-cdk-lib/aws-s3'
 
 describe('AutoAnalyzeStack', () => {
   test('synthesizes the way we expect', () => {
     const app = new cdk.App()
 
-    // Since the StateMachineStack consumes resources from a separate stack
-    // (cross-stack references), we create a stack for our SNS topics to live
-    // in here. These topics can then be passed to the StateMachineStack later,
+    // Since AutoAnalyzeStack consumes resources from a separate stack
+    // (cross-stack references), we create a stack for them to live
+    // in here. These topics can then be passed to the AutoAnalyzeStack later,
     // creating a cross-stack reference.
-    const topicsStack = new cdk.Stack(app, 'TopicsStack')
+    const sourceStack = new cdk.Stack(app, 'SourceStack')
 
+    // create a bucket
+    const defaultBucket = new Bucket(sourceStack, 'DefaultBucket', {})
     // Create the topic the stack we're testing will reference.
-    const topics = [new sns.Topic(topicsStack, 'Topic1', {})]
+    const topic = new Topic(sourceStack, 'Topic1', {})
 
     // Create the StateMachineStack.
     const autoAnalyzeStack = new AutoAnalyzeStack(app, 'AutoAnalyzeStack', {
-      topics // Cross-stack reference
+      inputBucket: defaultBucket,
+      outputBucket: defaultBucket,
+      statusTopic: topic,
+      email: 'test@example.com'
     })
 
     // Prepare the stack for assertions.
     const template = Template.fromStack(autoAnalyzeStack)
 
-    // Assert it creates the function with the correct properties...
-    template.hasResourceProperties('AWS::Lambda::Function', {
-      Handler: 'handler',
-      Runtime: 'nodejs18.x'
-    })
+    template.resourceCountIs('AWS::Lambda::Function', 0)
 
     // Creates the subscription...
     template.resourceCountIs('AWS::SNS::Subscription', 1)
-
-    // Fully assert on the state machine's IAM role with matchers.
-    template.hasResourceProperties(
-      'AWS::IAM::Role',
-      Match.objectLike({
-        AssumeRolePolicyDocument: {
-          Version: '2012-10-17',
-          Statement: [
-            {
-              Action: 'sts:AssumeRole',
-              Effect: 'Allow',
-              Principal: {
-                Service: 'lambda.amazonaws.com'
-              }
-            }
-          ]
-        }
-      })
-    )
+    // ...to the topic we created above.
+    template.hasResourceProperties('AWS::SNS::Subscription', {
+      Protocol: 'email',
+      Endpoint: ''
+    })
   })
 })

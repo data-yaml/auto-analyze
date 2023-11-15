@@ -18,11 +18,7 @@ export class AutoAnalyzeStack extends Stack {
   constructor(scope: Construct, id: string, props: AutoAnalyzeStackProps) {
     super(scope, id, props)
 
-    // subscribe email to sns topic
-    /*    const emailAddress = new CfnParameter(this, NOTIFICATION_EMAIL);
-    snsTopic.addSubscription(
-      new subscriptions.EmailSubscription(emailAddress.valueAsString)
-    ) */
+    // subscribe email to statusTopic
 
     // subscribe email to buckets
 
