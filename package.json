@@ -20,7 +20,7 @@
     "@types/node": "20.9.0",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
-    "aws-cdk": "2.106.1",
+    "aws-cdk": "2.108.1",
     "eslint": "^8.53.0",
     "eslint-config-standard-with-typescript": "^39.1.1",
     "eslint-plugin-import": "^2.29.0",
@@ -34,8 +34,8 @@
     "typescript": "~5.2.2"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.106.1",
-    "aws-sdk": "^2.1495.0",
+    "aws-cdk-lib": "2.108.1",
+    "aws-sdk": "^2.1496.0",
     "constructs": "^10.3.0",
     "source-map-support": "^0.5.21"
   },

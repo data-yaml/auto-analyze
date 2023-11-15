@@ -12,7 +12,9 @@ import {
   APP_NAME,
   AWS_ACCOUNT_ID,
   AWS_REGION,
+  INPUT_BUCKET,
   NOTIFICATION_EMAIL,
+  OUTPUT_BUCKET,
   READY2RUN_WORKFLOW_ID
  } from './constants'
 
@@ -22,19 +24,13 @@ export class OmicsWorkflowStack extends cdk.Stack {
     super(scope, id, props)
 
     // Create Input S3 bucket
-    const bucketInput = new s3.Bucket(
-      this,
-      `${APP_NAME}-cka-input-${AWS_ACCOUNT_ID}-${AWS_REGION}`,
-      {
+    const bucketInput = new s3.Bucket(this, INPUT_BUCKET, {
         enforceSSL: true
       }
     )
 
     // Create Results S3 bucket
-    const bucketOutput = new s3.Bucket(
-      this,
-      `${APP_NAME}-cka-output-${AWS_ACCOUNT_ID}-${AWS_REGION}`,
-      {
+    const bucketOutput = new s3.Bucket(this, OUTPUT_BUCKET, {
         enforceSSL: true
       }
     )
@@ -44,10 +40,11 @@ export class OmicsWorkflowStack extends cdk.Stack {
       displayName: `${APP_NAME}_workflow_status_topic`,
       topicName: `${APP_NAME}_workflow_status_topic`
     })
-    const emailAddress = new cdk.CfnParameter(this, NOTIFICATION_EMAIL);
+
+/*    const emailAddress = new cdk.CfnParameter(this, NOTIFICATION_EMAIL);
     snsTopic.addSubscription(
       new subscriptions.EmailSubscription(emailAddress.valueAsString)
-    )
+    )*/
 
     // Create an EventBridge rule that sends SNS notification on failure
     const ruleWorkflowStatusTopic = new events.Rule(

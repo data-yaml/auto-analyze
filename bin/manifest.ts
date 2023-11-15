@@ -1,14 +1,16 @@
+#!/usr/bin/env node
+
 import * as fs from 'fs'
 import * as path from 'path'
+import * as AWS from 'aws-sdk'
 
-import { AWS_REGION } from '../lib/constants'
-import { ManifestUploadStack } from '../lib/manifest-upload'
-import * as cdk from 'aws-cdk-lib'
+import { AWS_REGION, INPUT_BUCKET } from '../lib/constants'
 
 const CWD = process.cwd()
 const FASTQ = path.join(CWD, 'workflows', 'fastq')
 const SOURCE = path.join(FASTQ, 'aws_region.json')
 const DEST_FOLDER = path.join(FASTQ, AWS_REGION)
+const DEST_KEY = `${AWS_REGION}.json`
 const DEST = path.join(DEST_FOLDER, `${AWS_REGION}.json`)
 fs.mkdirSync(DEST_FOLDER, { recursive: true })
 
@@ -25,10 +27,11 @@ console.log(dest)
 fs.writeFileSync(DEST, dest, 'utf8')
 console.log(`DEST: ${DEST}`)
 
-// create stack
-const app = new cdk.App()
-new ManifestUploadStack(app, `ManifestUploadStack-${AWS_REGION}`, {
-    env: {
-        region: AWS_REGION
-    }
-})
+// upload dest to INPUT_BUCKET
+
+const s3 = new AWS.S3()
+const uploadParams = {
+  Bucket: INPUT_BUCKET,
+    Key: DEST_KEY,
+  Body: dest
+}
