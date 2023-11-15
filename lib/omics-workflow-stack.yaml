@@ -9,7 +9,7 @@ env:
     - CDK_DEFAULT_ACCOUNT
   AWS_REGION:
     - CDK_DEFAULT_REGION
-    - us-east-1
+    - us-west-2
   APP_NAME: AutoAnalyze
   READY2RUN_ID: 9500764
   SERVICE_EVENTS: events.amazonaws.com

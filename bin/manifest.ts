@@ -2,10 +2,10 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-import * as AWS from 'aws-sdk'
+import { S3 } from '@aws-sdk/client-s3'
 
-import { AWS_REGION, INPUT_BUCKET } from '../lib/constants'
-
+import { AWS_REGION } from '../lib/constants'
+const INPUT_BUCKET = 'omicsworkflowstack-omics20231113ckainput8507877171-vx8ro5guxcid'
 const CWD = process.cwd()
 const FASTQ = path.join(CWD, 'workflows', 'fastq')
 const SOURCE = path.join(FASTQ, 'aws_region.json')
@@ -21,17 +21,24 @@ console.log(`folder: ${FASTQ}`)
 console.log(`SOURCE: ${SOURCE}`)
 const source = fs.readFileSync(SOURCE, 'utf8')
 // substitute the AWS_REGION for the string "{aws-region}"
-const dest = source.replace(/{aws-region}/g, AWS_REGION)
+const dest = source.replace(/{aws-region}/g, AWS_REGION) + '\n'
 // write the destination file
 console.log(dest)
 fs.writeFileSync(DEST, dest, 'utf8')
 console.log(`DEST: ${DEST}`)
 
 // upload dest to INPUT_BUCKET
-
-const s3 = new AWS.S3()
-const uploadParams = {
+const s3 = new S3({ region: AWS_REGION })
+const s3_params = {
   Bucket: INPUT_BUCKET,
-    Key: DEST_KEY,
-  Body: dest
+  Key: DEST_KEY,
+  Body: dest,
 }
+console.log(s3_params)
+s3.putObject(s3_params)
+  .then((data) => {
+    console.log(data)
+  })
+  .catch((err) => {
+    console.error(err)
+  })

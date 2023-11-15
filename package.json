@@ -7,13 +7,13 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "tsc && npx manifest",
-    "coverage": "jest --coverage && open coverage/lcov-report/index.html",
-    "watch": "tsc-watch --onSuccess jest",
-    "test": "jest",
-    "cdk": "cdk",
     "clean": "rm -f {lib/lambda_function}/*{/*,}.{js,d.ts}",
-    "lint": "eslint . --fix --ext .ts && prettier -w ."
+    "coverage": "jest --coverage && open coverage/lcov-report/index.html",
+    "deploy": "npm run build && source .env && cdk deploy --require-approval never",
+    "lint": "eslint . --fix --ext .ts && prettier -w .",
+    "start": "tsc && npx manifest",
+    "test": "jest",
+    "watch": "tsc-watch --onSuccess jest"
   },
   "devDependencies": {
     "@types/jest": "^29.5.8",
@@ -34,6 +34,8 @@
     "typescript": "~5.2.2"
   },
   "dependencies": {
+    "@aws-sdk/client-omics": "^3.451.0",
+    "@aws-sdk/client-s3": "^3.451.0",
     "aws-cdk-lib": "2.108.1",
     "aws-sdk": "^2.1496.0",
     "constructs": "^10.3.0",
