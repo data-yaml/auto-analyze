@@ -14,6 +14,7 @@ import {
   BucketPolicy,
 } from 'aws-cdk-lib/aws-s3'
 import {
+  AccountPrincipal,
   ManagedPolicy,
   PolicyStatement,
   Role,
@@ -40,26 +41,17 @@ export class OmicsWorkflowStack extends Stack {
 
   readonly lambdaRole: Role
   readonly omicsRole: Role
+  readonly principal: AccountPrincipal
 
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
+    this.principal = new AccountPrincipal(AWS_ACCOUNT_ID)
     this.manifest_prefix = MANIFEST_PREFIX
     this.manifest_suffix = MANIFEST_SUFFIX
 
-    // Create Input S3 bucket
-    const bucketOptions = {
-      autoDeleteObjects: true,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      encryption: BucketEncryption.S3_MANAGED,
-      enforceSSL: true,
-      removalPolicy: RemovalPolicy.DESTROY,
-      versioned: true,
-    }
-
-    this.inputBucket = new Bucket(this, INPUT_BUCKET, bucketOptions)
-
-    // Create Results S3 bucket
-    this.outputBucket = new Bucket(this, OUTPUT_BUCKET, bucketOptions)
+    // Create Input/Output S3 buckets
+    this.inputBucket = this.makeBucket(INPUT_BUCKET)
+    this.outputBucket = this.makeBucket(OUTPUT_BUCKET)
 
     // SNS Topic for failure notifications
     const topicName = `${APP_NAME}_workflow_status_topic`
@@ -82,10 +74,14 @@ export class OmicsWorkflowStack extends Stack {
         }
       }
     )
-    //ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
+    
+    /* 
+    FIXME: Disable SNS topics due to Stack errors
+    ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
 
     // Grant EventBridge permission to publish to the SNS topic
-    // this.statusTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
+    this.statusTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
+    */
 
     // Create an IAM service role for HealthOmics workflows
     this.omicsRole = this.makeOmicsRole()
@@ -129,6 +125,21 @@ export class OmicsWorkflowStack extends Stack {
       }
     )
     rulevepWorkflowLambda.addTarget(new LambdaFunction(vepWorkflowLambda))
+  }
+
+  private makeBucket(name: string) {
+    const bucketOptions = {
+      autoDeleteObjects: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      encryption: BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      versioned: true,
+    }
+    const bucket = new Bucket(this, name, bucketOptions)
+    bucket.grantDelete(this.principal)
+    bucket.grantReadWrite(this.principal)
+    return bucket
   }
 
   private makeLambda(name: string, env: object) {
