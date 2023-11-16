@@ -90,7 +90,7 @@ export class OmicsWorkflowStack extends Stack {
     this.lambdaRole = this.makeLambdaRole()
 
     // Create Lambda function to submit initial HealthOmics workflow
-    const fastqWorkflowLambda = this.makeLambda('workflow1_fastq', {})
+    const fastqWorkflowLambda = this.makeLambda('wf1_fastq', {})
     // Add S3 event source to Lambda
     fastqWorkflowLambda.addEventSource(
       new S3EventSource(this.inputBucket, {
@@ -102,7 +102,7 @@ export class OmicsWorkflowStack extends Stack {
     )
 
     // Create Lambda function to submit second Omics pipeline
-    const vepWorkflowLambda = this.makeLambda('workflow2_vep', {
+    const vepWorkflowLambda = this.makeLambda('wf2_vep', {
       UPSTREAM_WORKFLOW_ID: READY2RUN_WORKFLOW_ID,
       SPECIES: 'homo_sapiens',
       DIR_CACHE: `s3://aws-genomics-static-${AWS_REGION}/omics-tutorials/data/databases/vep/`,
@@ -153,10 +153,8 @@ export class OmicsWorkflowStack extends Stack {
     }
     // create merged env
     const final_env = Object.assign(default_env, env)
-    return new NodejsFunction(this, `${APP_NAME}_${name}`, {
+    return new NodejsFunction(this, name, {
       runtime: Runtime.NODEJS_18_X,
-      handler: `${name}.handler`,
-      entry: `resources/${name}.ts`, // required for lambda function to work
       role: this.lambdaRole,
       timeout: Duration.seconds(60),
       retryAttempts: 1,
