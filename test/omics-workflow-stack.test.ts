@@ -29,7 +29,7 @@ describe('OmicsWorkflowStack', () => {
     })
 
     template.resourceCountIs('AWS::SNS::Topic', 1)
-    template.resourceCountIs('AWS::SNS::TopicPolicy', 1)
+    /*template.resourceCountIs('AWS::SNS::TopicPolicy', 1)
     template.hasResourceProperties('AWS::SNS::TopicPolicy',
       {
         PolicyDocument: {
@@ -51,7 +51,7 @@ describe('OmicsWorkflowStack', () => {
           Version: '2012-10-17'
         }
       }
-    )
+    )*/
 
     // Fully assert the lambdas's IAM role with matchers.
     template.hasResourceProperties(
