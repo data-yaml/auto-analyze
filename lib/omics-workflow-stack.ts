@@ -71,10 +71,10 @@ export class OmicsWorkflowStack extends Stack {
         }
       }
     )
-    ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
+    //ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
 
     // Grant EventBridge permission to publish to the SNS topic
-    this.statusTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
+    // this.statusTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
 
     // Create an IAM service role for HealthOmics workflows
     this.omicsRole = this.makeOmicsRole()
