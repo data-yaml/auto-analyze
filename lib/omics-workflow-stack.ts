@@ -1,12 +1,18 @@
-import { Duration, Stack, type StackProps } from 'aws-cdk-lib'
+import { Duration, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib'
 import { type Construct } from 'constructs'
-import { Bucket, EventType } from 'aws-cdk-lib/aws-s3'
 import { Topic } from 'aws-cdk-lib/aws-sns'
 import { Rule } from 'aws-cdk-lib/aws-events'
 import { LambdaFunction, SnsTopic } from 'aws-cdk-lib/aws-events-targets'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Runtime } from 'aws-cdk-lib/aws-lambda'
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
+import {
+  Bucket,
+  BlockPublicAccess,
+  EventType,
+  BucketEncryption,
+  BucketPolicy,
+} from 'aws-cdk-lib/aws-s3'
 import {
   ManagedPolicy,
   PolicyStatement,
@@ -41,14 +47,19 @@ export class OmicsWorkflowStack extends Stack {
     this.manifest_suffix = MANIFEST_SUFFIX
 
     // Create Input S3 bucket
-    this.inputBucket = new Bucket(this, INPUT_BUCKET, {
-      enforceSSL: true
-    })
+    const bucketOptions = {
+      autoDeleteObjects: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      encryption: BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      versioned: true,
+    }
+
+    this.inputBucket = new Bucket(this, INPUT_BUCKET, bucketOptions)
 
     // Create Results S3 bucket
-    this.outputBucket = new Bucket(this, OUTPUT_BUCKET, {
-      enforceSSL: true
-    })
+    this.outputBucket = new Bucket(this, OUTPUT_BUCKET, bucketOptions)
 
     // SNS Topic for failure notifications
     const topicName = `${APP_NAME}_workflow_status_topic`
