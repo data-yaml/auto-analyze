@@ -14,7 +14,10 @@ export function regionalManifest(region: string) {
   // read the source file and print its contents
   const source = fs.readFileSync(SOURCE, 'utf8')
   // substitute the `region` for the string "{aws-region}"
-  const dest = source.replace(/{aws-region}/g, region) + '\n'
+  const dest =
+    source
+      .replace(/{aws-region}/g, region)
+      .replace(/{timestamp}/g, Date.now().toString()) + '\n'
   // write the destination file
   // console.debug(dest)
   fs.writeFileSync(DEST, dest, 'utf8')

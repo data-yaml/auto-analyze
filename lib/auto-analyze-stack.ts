@@ -36,13 +36,12 @@ export class AutoAnalyzeStack extends Stack {
 
     // create Manifest
     const manifestFolder = regionalManifest(AWS_REGION)
-    const manifestKey = `${props.manifest_prefix}/${AWS_REGION}${props.manifest_suffix}`
 
     // deploy files to S3
     const deploy = new BucketDeployment(this, 'DeployManifest', {
       sources: [Source.asset(manifestFolder)],
       destinationBucket: props.inputBucket,
-      destinationKeyPrefix: manifestKey
+      destinationKeyPrefix: props.manifest_prefix
     })
   }
 }

@@ -11,7 +11,7 @@ import {
   BlockPublicAccess,
   EventType,
   BucketEncryption,
-  BucketPolicy,
+  BucketPolicy
 } from 'aws-cdk-lib/aws-s3'
 import {
   AccountPrincipal,
@@ -74,7 +74,7 @@ export class OmicsWorkflowStack extends Stack {
         }
       }
     )
-    
+
     /* 
     FIXME: Disable SNS topics due to Stack errors
     ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
@@ -134,7 +134,7 @@ export class OmicsWorkflowStack extends Stack {
       encryption: BucketEncryption.S3_MANAGED,
       enforceSSL: true,
       removalPolicy: RemovalPolicy.DESTROY,
-      versioned: true,
+      versioned: true
     }
     const bucket = new Bucket(this, name, bucketOptions)
     bucket.grantDelete(this.principal)

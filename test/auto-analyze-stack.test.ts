@@ -27,7 +27,7 @@ describe('AutoAnalyzeStack', () => {
       statusTopic: topic,
       email: 'test@example.com',
       manifest_prefix: cn.MANIFEST_PREFIX,
-      manifest_suffix: cn.MANIFEST_SUFFIX,
+      manifest_suffix: cn.MANIFEST_SUFFIX
     })
 
     // Prepare the stack for assertions.
@@ -39,9 +39,8 @@ describe('AutoAnalyzeStack', () => {
       Runtime: 'python3.9'
     })
 
-    const destKey = `${cn.MANIFEST_PREFIX}/${cn.AWS_REGION}${cn.MANIFEST_SUFFIX}`
     template.hasResourceProperties('Custom::CDKBucketDeployment', {
-      DestinationBucketKeyPrefix: Match.stringLikeRegexp(destKey),
+      DestinationBucketKeyPrefix: Match.stringLikeRegexp(cn.MANIFEST_PREFIX)
     })
   })
 })
