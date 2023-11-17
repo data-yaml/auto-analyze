@@ -11,7 +11,7 @@ const LOG_LEVEL = process.env.LOG_LEVEL!
 async function download_s3_file(
   bucket: string,
   _key: string,
-  local_file: string
+  local_file: string,
 ) {
   const s3 = new S3()
 
@@ -78,8 +78,11 @@ export async function handler(event: any, context: any) {
     throw new Error('Multiple s3 files in event not yet supported')
   }
 
-  const local_file = '/tmp/sample_manifest.json'
-  await download_s3_file(bucket_name, filename, local_file)
+
+  var local_file = context.local_file || '/tmp/sample_manifest.json'
+  if (!context.local_file) {
+    await download_s3_file(bucket_name, filename, local_file)
+  }
   console.info(`Downloaded manifest JSON to: ${local_file}`)
 
   const multi_sample_params = await fastq_config_from_json(local_file)
@@ -102,9 +105,9 @@ async function run_workflow(
   _item: Record<string, string>,
   bucket_name: string,
   filename: string,
-  error_count: number
+  error_count: number,
+  context: any
 ) {
-  const omics = new Omics()
   const _samplename = _item.sample_name
   console.info(`Starting workflow for sample: ${_samplename}`)
   const run_name = `Sample_${_samplename}_` + uuidv4()
@@ -125,8 +128,13 @@ async function run_workflow(
       requestId: uuidv4() // add a unique requestId
     }
     console.debug(`Workflow options: ${JSON.stringify(options)}`)
-    const response = await omics.startRun(options).promise()
-    console.info(`Workflow response: ${JSON.stringify(response)}`)
+    if (context.debug) {
+      console.info(`Skipping with context: ${JSON.stringify(context)}`)
+    } else {
+      const omics = new Omics()
+      const response = await omics.startRun(options).promise()
+      console.info(`Workflow response: ${JSON.stringify(response)}`)
+    }
   } catch (e: any) {
     console.error('Error : ' + e.toString())
     error_count += 1

@@ -5,11 +5,15 @@ import {
 
 import { TEST_EVENT } from './fixture'
 
+const CONTEXT = {
+  debug: true,
+  local_file: 'workflows/fastq/aws_region.json',
+}
+
 describe('fastq_config_from_json', () => {
   it('should return a list of sample params', async () => {
     // Make the test function async
-    const INPUT_FILE = 'workflows/fastq/aws_region.json'
-    const result = await fastq_config_from_json(INPUT_FILE)
+    const result = await fastq_config_from_json(CONTEXT.local_file)
     expect(result).toBeDefined()
     expect(result.length).toEqual(1)
     const sample = result[0]
@@ -27,7 +31,7 @@ describe('fastq_config_from_json', () => {
 // test handler with TEST_EVENT and context = {debug: true}
 describe('handler', () => {
   it('should run without error', async () => {
-    const result = await handler(TEST_EVENT, { debug: true })
+    const result = await handler(TEST_EVENT, CONTEXT)
     expect(result.message).toEqual('Success')
   })
 })

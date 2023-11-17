@@ -18,7 +18,7 @@ export const TEST_EVENT = {
       eventTime: '2023-11-17T00:51:47.862Z',
       eventName: 'ObjectCreated:Put',
       userIdentity: {
-        principalId: generateRandomString(20) // Replace with a randomly generated string of length 20
+        principalId: 'REDACTED'
       },
       requestParameters: {
         sourceIPAddress: '34.220.14.62'
@@ -33,7 +33,7 @@ export const TEST_EVENT = {
         bucket: {
           name: TEST_STACK,
           ownerIdentity: {
-            principalId: generateRandomString(10) // Replace with a randomly generated string of length 10
+            principalId: 'REDACTED'
           },
           arn: `arn:aws:s3:::${TEST_STACK}`
         },
