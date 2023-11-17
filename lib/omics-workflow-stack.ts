@@ -75,9 +75,9 @@ export class OmicsWorkflowStack extends Stack {
       }
     )
 
-    /* 
-    FIXME: Disable SNS topics due to Stack errors
     ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
+    /*
+    FIXME: Disable SNS topics due to Stack errors
 
     // Grant EventBridge permission to publish to the SNS topic
     this.statusTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
