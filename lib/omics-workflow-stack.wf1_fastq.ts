@@ -109,7 +109,7 @@ async function run_workflow(
   const run_name = `Sample_${_samplename}_` + uuidv4()
   try {
     const options = {
-      workflowType: 'BATCH', // add a workflowType
+      workflowType: 'READY2RUN',
       workflowId: WORKFLOW_ID,
       name: run_name,
       roleArn: OMICS_ROLE,
@@ -117,7 +117,7 @@ async function run_workflow(
       logLevel: LOG_LEVEL,
       outputUri: OUTPUT_S3_LOCATION,
       tags: {
-        SOURCE: 'LAMBDA_INITIAL_WORKFLOW',
+        SOURCE: 'LAMBDA_WF1_FASTQ',
         RUN_NAME: run_name,
         SAMPLE_MANIFEST: `s3://${bucket_name}/${filename}`
       },

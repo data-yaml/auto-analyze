@@ -149,7 +149,7 @@ export class OmicsWorkflowStack extends Stack {
       WORKFLOW_ID: READY2RUN_WORKFLOW_ID,
       ECR_REGISTRY:
         AWS_ACCOUNT_ID + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
-      LOG_LEVEL: 'INFO'
+      LOG_LEVEL: 'ALL'
     }
     // create merged env
     const final_env = Object.assign(default_env, env)
