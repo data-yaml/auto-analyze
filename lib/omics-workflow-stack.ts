@@ -69,7 +69,7 @@ export class OmicsWorkflowStack extends Stack {
           source: ['aws.omics'],
           detailType: ['Run Status Change'],
           detail: {
-            status: ['FAILED']
+            status: ['FAILED', 'COMPLETED', 'CREATED']
           }
         }
       }
@@ -77,13 +77,9 @@ export class OmicsWorkflowStack extends Stack {
 
     ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
 
-    const servicePrincipal = new ServicePrincipal('amazonaws.com')
-    /*
-    FIXME: Disable SNS topics due to Stack errors
-
-    // Grant EventBridge permission to publish to the SNS topic
-    this.statusTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
-    */
+    const servicePrincipal = new ServicePrincipal('events.amazonaws.com')
+    this.statusTopic.grantPublish(servicePrincipal)
+    this.statusTopic.grantPublish(this.principal) // for debugging purposes
 
     // Create an IAM service role for HealthOmics workflows
     this.omicsRole = this.makeOmicsRole()
