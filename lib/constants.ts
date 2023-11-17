@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import 'dotenv/config'
+import * as dotenv from 'dotenv'
+dotenv.config({ path: __dirname + '/.env' })
 
 export const AWS_ACCOUNT_ID = process.env.CDK_DEFAULT_ACCOUNT ?? ''
 export const AWS_REGION = process.env.CDK_DEFAULT_REGION ?? ''

@@ -7,7 +7,7 @@ import { TEST_EVENT } from './fixture'
 
 const CONTEXT = {
   debug: true,
-  local_file: 'workflows/fastq/aws_region.json',
+  local_file: 'workflows/fastq/aws_region.json'
 }
 
 describe('fastq_config_from_json', () => {
