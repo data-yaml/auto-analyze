@@ -9,6 +9,7 @@
     "clean": "rm -f {lib,bin,resources}/*{/*,}.{js,d.ts} && npm run lint",
     "coverage": "jest --coverage && open coverage/lcov-report/index.html",
     "deploy": "npm run build && cdk deploy OmicsWorkflowStack --require-approval never",
+    "destory": "cdk destroy --all",
     "lint": "prettier -w .",
     "start": "npm run build && cdk deploy --all --require-approval never",
     "synth": "tsc && npx cdk synth",
