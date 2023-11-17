@@ -34,23 +34,28 @@ async function download_s3_file(
   }
 }
 
-async function fastq_config_from_json(sample_manifest_json: string) {
-  const contents = await promisify(readFile)(sample_manifest_json, 'utf8')
+export async function fastq_config_from_json(manifest_json_file: string) {
+  const contents = await promisify(readFile)(manifest_json_file, 'utf8')
+  console.debug(`fastq_config_from_json[${manifest_json_file}]:\n${contents}`)
   const samples = JSON.parse(contents)
+  if (!Array.isArray(samples)) {
+    throw new Error(`samples is not an array: ${samples}`)
+  }
   const samples_params = []
-  for (const [_sample, _obj] of Object.entries(samples)) {
+  for (const _sample of samples) {
+    if (typeof _sample !== 'object') {
+      throw new Error(`sample is not an object: ${_sample}`)
+    }
     console.info(`Creating input payload for sample: ${_sample}`)
     const _params: Record<string, any> = {}
-    _params.sample_name = _sample
+    _params.sample_name = _sample.sample_name
     _params.fastq_pairs = []
-    for (const [_rg, _details] of Object.entries(_obj as Record<string, any>)) {
-      _params.fastq_pairs.push({
-        read_group: _rg,
-        fastq_1: _details.fastq_1 as string,
-        fastq_2: _details.fastq_2 as string,
-        platform: _details.platform as string
-      })
-    }
+    _params.fastq_pairs.push({
+      read_group: _sample.read_group as string,
+      fastq_1: _sample.fastq_1 as string,
+      fastq_2: _sample.fastq_2 as string,
+      platform: _sample.platform as string
+    })
     samples_params.push(_params)
   }
 
@@ -81,7 +86,7 @@ export async function handler(event: any, context: any) {
   let error_count = 0
   for (const _item of multi_sample_params) {
     error_count = await run_workflow(
-      _item.sample_name,
+      _item,
       bucket_name,
       filename,
       error_count
@@ -104,7 +109,7 @@ async function run_workflow(
   const run_name = `Sample_${_samplename}_` + uuidv4()
   try {
     const options = {
-      workflowType: 'BATCH', // add a workflowType
+      workflowType: 'READY2RUN',
       workflowId: WORKFLOW_ID,
       name: run_name,
       roleArn: OMICS_ROLE,
@@ -112,12 +117,13 @@ async function run_workflow(
       logLevel: LOG_LEVEL,
       outputUri: OUTPUT_S3_LOCATION,
       tags: {
-        SOURCE: 'LAMBDA_INITIAL_WORKFLOW',
+        SOURCE: 'LAMBDA_WF1_FASTQ',
         RUN_NAME: run_name,
         SAMPLE_MANIFEST: `s3://${bucket_name}/${filename}`
       },
       requestId: uuidv4() // add a unique requestId
     }
+    console.debug(`Workflow options: ${JSON.stringify(options)}`)
     const response = await omics.startRun(options).promise()
     console.info(`Workflow response: ${JSON.stringify(response)}`)
   } catch (e: any) {

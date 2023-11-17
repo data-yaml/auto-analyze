@@ -140,7 +140,7 @@ export async function handler(event: any, context: any): Promise<any> {
         logLevel: 'ALL',
         outputUri: OUTPUT_S3_LOCATION,
         tags: {
-          SOURCE: 'LAMBDA_POST_INITIAL_WORKFLOW',
+          SOURCE: 'LAMBDA_WF2_VEP',
           PARENT_WORKFLOW_ID: UPSTREAM_WORKFLOW_ID,
           PARENT_WORKFLOW_RUN_ID: omics_run_id,
           SAMPLE_NAME: sample_name

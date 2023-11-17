@@ -26,23 +26,22 @@ export class AutoAnalyzeStack extends Stack {
     super(scope, id, props)
 
     // subscribe email to statusTopic
-    props.statusTopic.addSubscription(new EmailSubscription(props.email))
+    // props.statusTopic.addSubscription(new EmailSubscription(props.email))
 
     // TODO: subscribe email to inputBucket changes
-    props.inputBucket.addEventNotification(
+    /*props.inputBucket.addEventNotification(
       EventType.OBJECT_CREATED,
       new SnsDestination(props.statusTopic)
-    )
+    )*/
 
     // create Manifest
     const manifestFolder = regionalManifest(AWS_REGION)
-    const manifestKey = `${props.manifest_prefix}/${AWS_REGION}${props.manifest_suffix}`
 
     // deploy files to S3
     const deploy = new BucketDeployment(this, 'DeployManifest', {
       sources: [Source.asset(manifestFolder)],
       destinationBucket: props.inputBucket,
-      destinationKeyPrefix: manifestKey
+      destinationKeyPrefix: props.manifest_prefix
     })
   }
 }

@@ -13,7 +13,8 @@ export const NOTIFICATION_EMAIL =
 export const INPUT_BUCKET = `${APP_NAME}-cka-input-${AWS_ACCOUNT_ID}-${AWS_REGION}`
 export const OUTPUT_BUCKET = `${APP_NAME}-cka-output-${AWS_ACCOUNT_ID}-${AWS_REGION}`
 
-export const MANIFEST_PREFIX = 'workflow/fastq'
+export const MANIFEST_ROOT = 'fastq'
+export const MANIFEST_PREFIX = `${MANIFEST_ROOT}/${AWS_REGION}`
 export const MANIFEST_SUFFIX = '.json'
 
 /*
