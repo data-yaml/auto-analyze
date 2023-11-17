@@ -1,4 +1,9 @@
-import { fastq_config_from_json } from '../lib/omics-workflow-stack.wf1_fastq'
+import {
+  fastq_config_from_json,
+  handler
+} from '../lib/omics-workflow-stack.wf1_fastq'
+
+import { TEST_EVENT } from './fixture'
 
 describe('fastq_config_from_json', () => {
   it('should return a list of sample params', async () => {
@@ -16,5 +21,13 @@ describe('fastq_config_from_json', () => {
     expect(pair.fastq_1).toContain('NA12878/Sample_U0a/U0a_CGATGT_L001_R1_001')
     expect(pair.fastq_2).toContain('NA12878/Sample_U0a/U0a_CGATGT_L001_R2_001')
     expect(pair.platform).toEqual('illumina')
+  })
+})
+
+// test handler with TEST_EVENT and context = {debug: true}
+describe('handler', () => {
+  it('should run without error', async () => {
+    const result = await handler(TEST_EVENT, { debug: true })
+    expect(result.message).toEqual('Success')
   })
 })

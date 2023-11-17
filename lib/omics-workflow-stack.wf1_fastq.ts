@@ -85,7 +85,13 @@ export async function handler(event: any, context: any) {
   const multi_sample_params = await fastq_config_from_json(local_file)
   let error_count = 0
   for (const _item of multi_sample_params) {
-    error_count = await run_workflow(_item, bucket_name, filename, error_count)
+    error_count += await run_workflow(
+      _item,
+      bucket_name,
+      filename,
+      error_count,
+      context
+    )
   }
 
   if (error_count > 0) {
