@@ -3,7 +3,7 @@ import { Match, Template } from 'aws-cdk-lib/assertions'
 import { AutoAnalyzeStack } from '../lib/auto-analyze-stack'
 import { Topic } from 'aws-cdk-lib/aws-sns'
 import { Bucket } from 'aws-cdk-lib/aws-s3'
-import * as cn from '../lib/constants'
+import { MANIFEST_PREFIX, MANIFEST_SUFFIX } from '../lib/constants'
 
 describe('AutoAnalyzeStack', () => {
   test('synthesizes the way we expect', () => {
@@ -26,8 +26,8 @@ describe('AutoAnalyzeStack', () => {
       outputBucket: defaultBucket,
       statusTopic: topic,
       email: 'test@example.com',
-      manifest_prefix: cn.MANIFEST_PREFIX,
-      manifest_suffix: cn.MANIFEST_SUFFIX
+      manifest_prefix: MANIFEST_PREFIX,
+      manifest_suffix: MANIFEST_SUFFIX
     })
 
     // Prepare the stack for assertions.
@@ -40,7 +40,7 @@ describe('AutoAnalyzeStack', () => {
     })
 
     template.hasResourceProperties('Custom::CDKBucketDeployment', {
-      DestinationBucketKeyPrefix: Match.stringLikeRegexp(cn.MANIFEST_PREFIX)
+      DestinationBucketKeyPrefix: Match.stringLikeRegexp(MANIFEST_PREFIX)
     })
   })
 })
