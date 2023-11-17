@@ -17,9 +17,6 @@ export const TEST_EVENT = {
       awsRegion: 'us-west-2',
       eventTime: '2023-11-17T00:51:47.862Z',
       eventName: 'ObjectCreated:Put',
-      userIdentity: {
-        principalId: 'REDACTED'
-      },
       requestParameters: {
         sourceIPAddress: '34.220.14.62'
       },
@@ -32,9 +29,6 @@ export const TEST_EVENT = {
         configurationId: generateRandomString(20),
         bucket: {
           name: TEST_STACK,
-          ownerIdentity: {
-            principalId: 'REDACTED'
-          },
           arn: `arn:aws:s3:::${TEST_STACK}`
         },
         object: {
