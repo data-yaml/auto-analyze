@@ -76,6 +76,8 @@ export class OmicsWorkflowStack extends Stack {
     )
 
     ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
+
+    const servicePrincipal = new ServicePrincipal('amazonaws.com')
     /*
     FIXME: Disable SNS topics due to Stack errors
 
