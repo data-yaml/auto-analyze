@@ -19,6 +19,7 @@ jobs:
       id-token: write
       issues: write
       pull-requests: write
+      checks: write
 
     runs-on: ubuntu-latest
 

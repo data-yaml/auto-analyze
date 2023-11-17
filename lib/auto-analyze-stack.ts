@@ -2,7 +2,11 @@ import { Stack, StackProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import { Bucket, EventType } from 'aws-cdk-lib/aws-s3'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
-import { SnsDestination } from 'aws-cdk-lib/aws-s3-notifications'
+import {
+  SnsDestination,
+  SqsDestination
+} from 'aws-cdk-lib/aws-s3-notifications'
+import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
 import { Topic } from 'aws-cdk-lib/aws-sns'
 import { EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions'
 import { AWS_REGION } from './constants'
@@ -26,13 +30,7 @@ export class AutoAnalyzeStack extends Stack {
     super(scope, id, props)
 
     // subscribe email to statusTopic
-    // props.statusTopic.addSubscription(new EmailSubscription(props.email))
-
-    // TODO: subscribe email to inputBucket changes
-    /*props.inputBucket.addEventNotification(
-      EventType.OBJECT_CREATED,
-      new SnsDestination(props.statusTopic)
-    )*/
+    props.statusTopic.addSubscription(new EmailSubscription(props.email))
 
     // create Manifest
     const manifestFolder = regionalManifest(AWS_REGION)
