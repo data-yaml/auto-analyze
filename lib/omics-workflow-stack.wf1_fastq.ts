@@ -11,7 +11,7 @@ const LOG_LEVEL = process.env.LOG_LEVEL!
 async function download_s3_file(
   bucket: string,
   _key: string,
-  local_file: string,
+  local_file: string
 ) {
   const s3 = new S3()
 
@@ -78,7 +78,6 @@ export async function handler(event: any, context: any) {
     throw new Error('Multiple s3 files in event not yet supported')
   }
 
-
   var local_file = context.local_file || '/tmp/sample_manifest.json'
   if (!context.local_file) {
     await download_s3_file(bucket_name, filename, local_file)
@@ -100,6 +99,7 @@ export async function handler(event: any, context: any) {
   if (error_count > 0) {
     throw new Error('Error launching some workflows, check logs')
   }
+  return { message: 'Success' }
 }
 async function run_workflow(
   _item: Record<string, string>,
