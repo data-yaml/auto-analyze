@@ -1,6 +1,5 @@
-import { Duration, Stack, type StackProps } from 'aws-cdk-lib'
+import { Duration, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib'
 import { type Construct } from 'constructs'
-import { Bucket, EventType } from 'aws-cdk-lib/aws-s3'
 import { Topic } from 'aws-cdk-lib/aws-sns'
 import { Rule } from 'aws-cdk-lib/aws-events'
 import { LambdaFunction, SnsTopic } from 'aws-cdk-lib/aws-events-targets'
@@ -8,6 +7,14 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Runtime } from 'aws-cdk-lib/aws-lambda'
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
 import {
+  Bucket,
+  BlockPublicAccess,
+  EventType,
+  BucketEncryption,
+  BucketPolicy
+} from 'aws-cdk-lib/aws-s3'
+import {
+  AccountPrincipal,
   ManagedPolicy,
   PolicyStatement,
   Role,
@@ -34,21 +41,17 @@ export class OmicsWorkflowStack extends Stack {
 
   readonly lambdaRole: Role
   readonly omicsRole: Role
+  readonly principal: AccountPrincipal
 
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
+    this.principal = new AccountPrincipal(AWS_ACCOUNT_ID)
     this.manifest_prefix = MANIFEST_PREFIX
     this.manifest_suffix = MANIFEST_SUFFIX
 
-    // Create Input S3 bucket
-    this.inputBucket = new Bucket(this, INPUT_BUCKET, {
-      enforceSSL: true
-    })
-
-    // Create Results S3 bucket
-    this.outputBucket = new Bucket(this, OUTPUT_BUCKET, {
-      enforceSSL: true
-    })
+    // Create Input/Output S3 buckets
+    this.inputBucket = this.makeBucket(INPUT_BUCKET)
+    this.outputBucket = this.makeBucket(OUTPUT_BUCKET)
 
     // SNS Topic for failure notifications
     const topicName = `${APP_NAME}_workflow_status_topic`
@@ -71,10 +74,14 @@ export class OmicsWorkflowStack extends Stack {
         }
       }
     )
+
+    /* 
+    FIXME: Disable SNS topics due to Stack errors
     ruleWorkflowStatusTopic.addTarget(new SnsTopic(this.statusTopic))
 
     // Grant EventBridge permission to publish to the SNS topic
     this.statusTopic.grantPublish(new ServicePrincipal('amazonaws.com'))
+    */
 
     // Create an IAM service role for HealthOmics workflows
     this.omicsRole = this.makeOmicsRole()
@@ -83,7 +90,7 @@ export class OmicsWorkflowStack extends Stack {
     this.lambdaRole = this.makeLambdaRole()
 
     // Create Lambda function to submit initial HealthOmics workflow
-    const fastqWorkflowLambda = this.makeLambda('workflow1_fastq', {})
+    const fastqWorkflowLambda = this.makeLambda('wf1_fastq', {})
     // Add S3 event source to Lambda
     fastqWorkflowLambda.addEventSource(
       new S3EventSource(this.inputBucket, {
@@ -95,7 +102,7 @@ export class OmicsWorkflowStack extends Stack {
     )
 
     // Create Lambda function to submit second Omics pipeline
-    const vepWorkflowLambda = this.makeLambda('workflow2_vep', {
+    const vepWorkflowLambda = this.makeLambda('wf2_vep', {
       UPSTREAM_WORKFLOW_ID: READY2RUN_WORKFLOW_ID,
       SPECIES: 'homo_sapiens',
       DIR_CACHE: `s3://aws-genomics-static-${AWS_REGION}/omics-tutorials/data/databases/vep/`,
@@ -120,6 +127,21 @@ export class OmicsWorkflowStack extends Stack {
     rulevepWorkflowLambda.addTarget(new LambdaFunction(vepWorkflowLambda))
   }
 
+  private makeBucket(name: string) {
+    const bucketOptions = {
+      autoDeleteObjects: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      encryption: BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      versioned: true
+    }
+    const bucket = new Bucket(this, name, bucketOptions)
+    bucket.grantDelete(this.principal)
+    bucket.grantReadWrite(this.principal)
+    return bucket
+  }
+
   private makeLambda(name: string, env: object) {
     const default_env = {
       OMICS_ROLE: this.omicsRole.roleArn,
@@ -127,14 +149,12 @@ export class OmicsWorkflowStack extends Stack {
       WORKFLOW_ID: READY2RUN_WORKFLOW_ID,
       ECR_REGISTRY:
         AWS_ACCOUNT_ID + '.dkr.ecr.' + AWS_REGION + '.amazonaws.com',
-      LOG_LEVEL: 'INFO'
+      LOG_LEVEL: 'ALL'
     }
     // create merged env
     const final_env = Object.assign(default_env, env)
-    return new NodejsFunction(this, `${APP_NAME}_${name}`, {
+    return new NodejsFunction(this, name, {
       runtime: Runtime.NODEJS_18_X,
-      handler: `${name}.handler`,
-      entry: `resources/${name}.ts`, // required for lambda function to work
       role: this.lambdaRole,
       timeout: Duration.seconds(60),
       retryAttempts: 1,
