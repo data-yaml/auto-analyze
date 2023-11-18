@@ -4,56 +4,84 @@ import * as sns from 'aws-cdk-lib/aws-sns'
 import { OmicsWorkflowStack } from '../lib/omics-workflow-stack'
 
 describe('OmicsWorkflowStack', () => {
-    test('synthesizes the way we expect', () => {
-        const app = new cdk.App()
+  test('synthesizes the way we expect', () => {
+    const app = new cdk.App()
 
-        // Since the StateMachineStack consumes resources from a separate stack
-        // (cross-stack references), we create a stack for our SNS topics to live
-        // in here. These topics can then be passed to the StateMachineStack later,
-        // creating a cross-stack reference.
-        const topicsStack = new cdk.Stack(app, 'TopicsStack')
+    // Create the OmicsWorkflowStack.
+    const omicsWorkflowStack = new OmicsWorkflowStack(
+      app,
+      'OmicsWorkflowStack',
+      {}
+    )
 
-        // Create the topic the stack we're testing will reference.
-        const topics = [new sns.Topic(topicsStack, 'Topic1', {})]
+    // Prepare the stack for assertions.
+    const template = Template.fromStack(omicsWorkflowStack)
 
-        // Create the OmicsWorkflowStack.
-        const omicsWorkflowStack = new OmicsWorkflowStack(app, 'OmicsWorkflowStack', {
-            // topics
-        })
-
-        // Prepare the stack for assertions.
-        const template = Template.fromStack(omicsWorkflowStack)
-
-        // Assert it creates the function with the correct properties...
-        template.hasResourceProperties('AWS::Lambda::Function', {
-            Handler: 'initial_workflow.handler',
-            Runtime: 'nodejs18.x'
-        })
-
-        template.hasResourceProperties('AWS::Lambda::Function', {
-            Handler: 'post_workflow.handler',
-            Runtime: 'nodejs18.x'
-        })
-
-        template.resourceCountIs('AWS::SNS::Topic', 1)
-
-        // Fully assert on the state machine's IAM role with matchers.
-        template.hasResourceProperties(
-            'AWS::IAM::Role',
-            Match.objectLike({
-                AssumeRolePolicyDocument: {
-                    Version: '2012-10-17',
-                    Statement: [
-                        {
-                            Action: 'sts:AssumeRole',
-                            Effect: 'Allow',
-                            Principal: {
-                                Service: 'lambda.amazonaws.com'
-                            }
-                        }
-                    ]
-                }
-            })
-        )
+    // Assert it creates the functiona with the correct properties...
+    // TBD: can we verify it properly loaded the lambda code?
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      Handler: 'index.handler',
+      Runtime: 'nodejs18.x'
     })
+
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      Handler: 'index.handler',
+      Runtime: 'nodejs18.x',
+      Code: {
+        S3Bucket: {
+          'Fn::Sub': Match.stringLikeRegexp('.*assets.*')
+        },
+        S3Key: Match.stringLikeRegexp('.*.zip')
+      },
+      Environment: {
+        Variables: {
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+        }
+      }
+    })
+
+    template.resourceCountIs('AWS::SNS::Topic', 1)
+    /*template.resourceCountIs('AWS::SNS::TopicPolicy', 1)
+    template.hasResourceProperties('AWS::SNS::TopicPolicy',
+      {
+        PolicyDocument: {
+          Statement: [
+            {
+              Action: 'sns:Publish',
+              Effect: 'Allow',
+              Principal: {
+                Service: 'events.amazonaws.com',
+              },
+              Resource: {
+                Ref: Match.stringLikeRegexp('.*workflowstatustopic.*')
+              },
+            },
+            {
+              
+            }
+          ],
+          Version: '2012-10-17'
+        }
+      }
+    )*/
+
+    // Fully assert the lambdas's IAM role with matchers.
+    template.hasResourceProperties(
+      'AWS::IAM::Role',
+      Match.objectLike({
+        AssumeRolePolicyDocument: {
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Action: 'sts:AssumeRole',
+              Effect: 'Allow',
+              Principal: {
+                Service: 'lambda.amazonaws.com'
+              }
+            }
+          ]
+        }
+      })
+    )
+  })
 })

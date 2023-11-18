@@ -1,9 +1,28 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --env-file .env
 import 'source-map-support/register'
 import * as cdk from 'aws-cdk-lib'
+import { AutoAnalyzeStack } from '../lib/auto-analyze-stack'
+import { OmicsWorkflowStack } from '../lib/omics-workflow-stack'
+import {
+  AWS_ACCOUNT_ID,
+  AWS_REGION,
+  NOTIFICATION_EMAIL
+} from '../lib/constants'
+
+const env = { account: AWS_ACCOUNT_ID, region: AWS_REGION }
 
 const app = new cdk.App()
-console.log('Hello, CDK!', app.node.tryGetContext('name'))
+const omicsWorkflowStack = new OmicsWorkflowStack(app, 'OmicsWorkflowStack', {
+  env: env
+})
+const autoAnalyzeStack = new AutoAnalyzeStack(app, 'AutoAnalyzeStack', {
+  env: env,
+  inputBucket: omicsWorkflowStack.inputBucket,
+  outputBucket: omicsWorkflowStack.outputBucket,
+  statusTopic: omicsWorkflowStack.statusTopic,
+  email: NOTIFICATION_EMAIL,
+  manifest_prefix: omicsWorkflowStack.manifest_prefix,
+  manifest_suffix: omicsWorkflowStack.manifest_suffix
+})
 
-// Stacks are intentionally not created here -- this application isn't meant to
-// be deployed.
+console.log('autoAnalyzeStack complete!', autoAnalyzeStack)

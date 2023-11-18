@@ -9,7 +9,7 @@ env:
     - CDK_DEFAULT_ACCOUNT
   AWS_REGION:
     - CDK_DEFAULT_REGION
-    - us-east-1
+    - us-west-2
   APP_NAME: AutoAnalyze
   READY2RUN_ID: 9500764
   SERVICE_EVENTS: events.amazonaws.com
@@ -23,7 +23,7 @@ name:
       - status
       - topic
 resources:
-  bucketInput:
+  inputBucket:
     api: s3
     call: Bucket
     name:
@@ -35,7 +35,7 @@ resources:
         - $ref: '#/env/AWS_REGION'
     options:
       enforceSSL: true
-  bucketOutput:
+  outputBucket:
     api: s3
     call: Bucket
     name:
@@ -114,13 +114,13 @@ resources:
         - 's3:ListBucket'
         - 's3:GetObject'
       resources:
-        - $ref: '#/resources/bucketInput/arn'
-        - $ref: '#/resources/bucketOutput/arn'
+        - $ref: '#/resources/inputBucket/arn'
+        - $ref: '#/resources/outputBucket/arn'
         - $join:
-            - $ref: '#/resources/bucketInput/arn'
+            - $ref: '#/resources/inputBucket/arn'
             - /*
         - $join:
-            - $ref: '#/resources/bucketOutput/arn'
+            - $ref: '#/resources/outputBucket/arn'
             - /*
     reverse: # omicsRole.addToPolicy(omicsS3ReadPolicy);
       addToPolicy:
@@ -133,9 +133,9 @@ resources:
         - 's3:ListBucket'
         - 's3:PutObject'
       resources:
-        - $ref: '#/resources/bucketOutput/arn'
+        - $ref: '#/resources/outputBucket/arn'
         - $join:
-            - $ref: '#/resources/bucketOutput/arn'
+            - $ref: '#/resources/outputBucket/arn'
             - /*
     reverse: # omicsRole.addToPolicy(omicsS3WritePolicy);
       addToPolicy:
@@ -261,13 +261,13 @@ resources:
         - 's3:GetObject'
         - 's3:PutObject'
       resources:
-        - $ref: '#/resources/bucketInput/arn'
-        - $ref: '#/resources/bucketOutput/arn'
+        - $ref: '#/resources/inputBucket/arn'
+        - $ref: '#/resources/outputBucket/arn'
         - $join:
-            - $ref: '#/resources/bucketInput/arn'
+            - $ref: '#/resources/inputBucket/arn'
             - /*
         - $join:
-            - $ref: '#/resources/bucketOutput/arn'
+            - $ref: '#/resources/outputBucket/arn'
             - /*
     reverse:
       addToPolicy:
@@ -291,7 +291,7 @@ resources:
     options:
       batchSize: 1
       eventSourceArn:
-        $ref: '#/resources/bucketInput/arn'
+        $ref: '#/resources/inputBucket/arn'
       startingPosition: LATEST
   initialWorkflowLambda:
     api: lambda
@@ -320,7 +320,7 @@ resources:
         OUTPUT_S3_LOCATION:
           $join.:
             - s3://
-            - $ref: '#/resources/bucketOutput/name'
+            - $ref: '#/resources/outputBucket/name'
             - /outputs
         WORKFLOW_ID:
           $ref: '#/env/READY2RUN_ID'
@@ -366,7 +366,7 @@ resources:
         OUTPUT_S3_LOCATION:
           $join.:
             - s3://
-            - $ref: '#/resources/bucketOutput/name'
+            - $ref: '#/resources/outputBucket/name'
             - /outputs
         UPSTREAM_WORKFLOW_ID:
           $ref: '#/env/READY2RUN_ID'
