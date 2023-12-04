@@ -10,8 +10,16 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 source .env # create from example.env
 npm install
 npx cdk bootstrap "aws://$CDK_DEFAULT_ACCOUNT/$CDK_DEFAULT_REGION"
-npx cdk deploy
-npm run upload
+npm run start
+open "https://console.aws.amazon.com/omics/home?region=$CDK_DEFAULT_REGION#/runs"
+```
+
+## Outputs
+
+```bash
+open "https://console.aws.amazon.com/cloudformation/home?region=$CDK_DEFAULT_REGION#/stacks"
+# lambdas
+open "https://console.aws.amazon.com/lambda/home?region=$CDK_DEFAULT_REGION#/functions"
 ```
 
 ## Useful commands
